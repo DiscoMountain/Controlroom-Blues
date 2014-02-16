@@ -1,0 +1,11 @@
+.status-OPEN, .status-ON > * {
+    fill: #00FF00 !important;
+}
+
+.status-CLOSED, .status-OFF > * {
+    fill: #FF0000 !important;
+}
+
+.select {
+    fill-opacity: 0.2;
+}
