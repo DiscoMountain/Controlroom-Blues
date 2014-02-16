@@ -8,7 +8,8 @@ var world;
         this.console =  function (s) {console.log("World console: " + s);};
 
         this.doors = {
-            1 : {open: false}
+            1 : {open: false},
+            2 : {open: false}
         };
     };
 
