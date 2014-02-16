@@ -12,14 +12,14 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
     // callback for when the user zooms or pans the view.
     function zoomed () {
         // update the zoom level and offset on the main view
-        svg.select("g").attr("transform", 
+        svg.select("g").attr("transform",
                  "translate(" + d3.event.translate + ")" +
                  "scale(" + d3.event.scale + ")");
-        
+
         // ...and update the position and size of the view rectangle in the overview.
         var scale = svg_small_scale / d3.event.scale;
         d3.select(thumbnail_rect)
-            .style("left", Math.round(-d3.event.translate[0] * scale)) 
+            .style("left", Math.round(-d3.event.translate[0] * scale))
             .style("top", Math.round(-d3.event.translate[1] * scale))
             .style("width", Math.round(container.offsetWidth * scale))
             .style("height", Math.round(container.offsetHeight * scale));
@@ -41,9 +41,9 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
         .appendChild(importedNode);
 
     // create the small thumbnail thumbnail
-    var svg_tmp = importedNode.cloneNode(true), 
+    var svg_tmp = importedNode.cloneNode(true),
         svg_small_scale = thumbnail_container.offsetWidth / importedNode.getAttribute("width"),
-        thumbnail_height = thumbnail_container.offsetWidth * 
+        thumbnail_height = thumbnail_container.offsetWidth *
             importedNode.getAttribute("height") / importedNode.getAttribute("width"),
         svg_small = d3.select(svg_tmp)
             .attr("id", "svg-small")
@@ -59,5 +59,7 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
     //     .style("stroke", "blue");
 
     zoom.event(svg);
-    
+
+    world.start(importedNode);
+
 });

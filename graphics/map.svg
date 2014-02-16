@@ -13,7 +13,7 @@
    height="480"
    id="svg2999"
    version="1.1"
-   inkscape:version="0.48.2 r9819"
+   inkscape:version="0.48+devel r"
    sodipodi:docname="map.svg">
   <defs
      id="defs3001" />
@@ -25,15 +25,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1767152"
-     inkscape:cx="339.48471"
+     inkscape:cx="363.70467"
      inkscape:cy="238.20133"
      inkscape:document-units="px"
-     inkscape:current-layer="layer5"
+     inkscape:current-layer="svg2999"
      showgrid="true"
-     inkscape:window-width="1440"
-     inkscape:window-height="782"
+     inkscape:window-width="1920"
+     inkscape:window-height="1061"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="19"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -73,11 +73,64 @@
     </g>
     <g
        inkscape:groupmode="layer"
+       id="layer2"
+       inkscape:label="rooms">
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="room-b"
+         width="230"
+         height="130"
+         x="400"
+         y="190"
+         inkscape:label="#rect8461" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="room-a"
+         width="150"
+         height="170"
+         x="480"
+         y="10"
+         inkscape:label="#rect8463" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         id="room-c"
+         width="70"
+         height="160"
+         x="400"
+         y="10"
+         inkscape:label="#rect8465" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         id="room-d"
+         width="310"
+         height="70"
+         x="90"
+         y="10"
+         inkscape:label="#rect8467" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         id="room-e"
+         width="260"
+         height="190"
+         x="120"
+         y="100"
+         inkscape:label="#rect8469" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         id="room-f"
+         width="80"
+         height="270"
+         x="10"
+         y="10"
+         inkscape:label="#rect8483" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
        id="layer4"
        inkscape:label="Walls">
       <path
          style="fill:#333333;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="M 260 80 L 260 100 L 380 100 L 380 290 L 260 290 L 260 310 L 260 350 L 50 350 L 50 440 L 290 440 L 290 430 L 60 430 L 60 360 L 270 360 L 270 320 L 390 320 L 390 430 L 330 430 L 330 440 L 400 440 L 400 330 L 470 330 L 470 320 L 400 320 L 400 310 L 400 190 L 470 190 L 530 190 L 530 180 L 480 180 L 480 100 L 470 100 L 470 170 L 400 170 L 400 80 L 260 80 z "
+         d="M 260 80 L 260 100 L 380 100 L 380 220 L 400 220 L 400 190 L 470 190 L 530 190 L 530 180 L 480 180 L 480 100 L 470 100 L 470 170 L 400 170 L 400 80 L 260 80 z M 380 260 L 380 290 L 260 290 L 260 310 L 260 350 L 50 350 L 50 440 L 290 440 L 290 430 L 60 430 L 60 360 L 270 360 L 270 320 L 390 320 L 390 430 L 330 430 L 330 440 L 400 440 L 400 330 L 470 330 L 470 320 L 400 320 L 400 310 L 400 260 L 380 260 z "
          id="path3016" />
       <path
          style="fill:#333333;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
@@ -119,30 +172,57 @@
       <rect
          style="fill:#800000;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          id="door-2"
-    	 class="status-CLOSED"
+         class="status-CLOSED"
          width="40"
          height="10"
          x="530"
          y="180"
          onclick="world.toggle(evt)"
          inkscape:label="#rect2996">
-         <animateMotion
-         	class="OPEN"
-         	from="0,0"
-         	to="40,0"
-         	dur="1s"
-         	begin="indefinite"
-         	fill="freeze"
-         	id="animateMotion15" />
-      	 <animateMotion
-         	class="CLOSED"
-         	from="40,0"
-         	to="0,0"
-         	dur="1s"
-         	begin="indefinite"
-         	fill="freeze"
-         	id="animateMotion17" />
-       </rect>
+        <animateMotion
+           class="OPEN"
+           from="0,0"
+           to="40,0"
+           dur="1s"
+           begin="indefinite"
+           fill="freeze"
+           id="animateMotion15" />
+        <animateMotion
+           class="CLOSED"
+           from="40,0"
+           to="0,0"
+           dur="1s"
+           begin="indefinite"
+           fill="freeze"
+           id="animateMotion17" />
+      </rect>
+      <rect
+         style="fill:#800000;fill-opacity:1;stroke:#333333;stroke-opacity:1"
+         id="door-5"
+         class="status-CLOSED"
+         width="40"
+         height="20"
+         x="220"
+         y="80"
+         onclick="world.toggle(evt)"
+         inkscape:label="#rect3881">
+        <animateMotion
+           class="OPEN"
+           from="0,0"
+           to="40,0"
+           dur="1s"
+           begin="indefinite"
+           fill="freeze"
+           id="animateMotion15" />
+        <animateMotion
+           class="CLOSED"
+           from="40,0"
+           to="0,0"
+           dur="1s"
+           begin="indefinite"
+           fill="freeze"
+           id="animateMotion17" />
+      </rect>
     </g>
   </g>
 </svg>
