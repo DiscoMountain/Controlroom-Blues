@@ -26,9 +26,9 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.1767152"
      inkscape:cx="363.70467"
-     inkscape:cy="238.20133"
+     inkscape:cy="237.77642"
      inkscape:document-units="px"
-     inkscape:current-layer="svg2999"
+     inkscape:current-layer="layer4"
      showgrid="true"
      inkscape:window-width="1920"
      inkscape:window-height="1061"
@@ -92,13 +92,14 @@
          y="10"
          inkscape:label="#rect8463" />
       <rect
-         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="room-c"
          width="70"
-         height="160"
+         height="90"
          x="400"
-         y="10"
-         inkscape:label="#rect8465" />
+         y="80"
+         inkscape:label="#rect8465"
+         ry="0" />
       <rect
          style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
          id="room-d"
@@ -123,6 +124,14 @@
          x="10"
          y="10"
          inkscape:label="#rect8483" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="room-g"
+         width="70"
+         height="70"
+         x="400"
+         y="10"
+         inkscape:label="#rect8506" />
     </g>
     <g
        inkscape:groupmode="layer"
@@ -130,12 +139,32 @@
        inkscape:label="Walls">
       <path
          style="fill:#333333;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="M 260 80 L 260 100 L 380 100 L 380 220 L 400 220 L 400 190 L 470 190 L 530 190 L 530 180 L 480 180 L 480 100 L 470 100 L 470 170 L 400 170 L 400 80 L 260 80 z M 380 260 L 380 290 L 260 290 L 260 310 L 260 350 L 50 350 L 50 440 L 290 440 L 290 430 L 60 430 L 60 360 L 270 360 L 270 320 L 390 320 L 390 430 L 330 430 L 330 440 L 400 440 L 400 330 L 470 330 L 470 320 L 400 320 L 400 310 L 400 260 L 380 260 z "
-         id="path3016" />
+         d="m 260,80 0,20 120,0 0,120 20,0 0,-30 70,0 60,0 0,-10 -50,0 0,-39.20848 -10,0 0,29.20848 -70,0 0,-90 z m 120,180 0,30 -120,0 0,20 0,40 -210,0 0,90 240,0 0,-10 -230,0 0,-70 210,0 0,-40 120,0 0,110 -60,0 0,10 70,0 0,-110 70,0 0,-10 -70,0 0,-10 0,-50 z"
+         id="path3016"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccccccccc" />
       <path
-         style="fill:#333333;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-         d="M 0 0 L 0 210 L 10 210 L 10 10 L 470 10 L 470 70 L 480 70 L 480 10 L 630 10 L 630 180 L 570 180 L 570 190 L 630 190 L 630 320 L 510 320 L 510 330 L 630 330 L 640 329.59375 L 640 190 L 640 0 L 0 0 z M 90 80 L 90 280 L 0 280 L 0 310 L 0 480 L 640 480 L 640 371.21875 L 630 370 L 440 370 L 440 410 L 450 410 L 450 380 L 630 380 L 630 470 L 450 470 L 450 440 L 440 440 L 440 470 L 10 470 L 10 310 L 120 310 L 220 310 L 220 290 L 120 290 L 120 100 L 220 100 L 220 80 L 90 80 z "
-         id="path3793" />
+         style="fill:#333333;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 0,0 0,210 10,0 0,-200 460,0 0,89.743816 10,0 L 480,10 l 150,0 0,170 -60,0 0,10 60,0 0,130 -120,0 0,10 120,0 10,-0.40625 L 640,190 640,0 Z m 90,80 0,200 -90,0 0,30 0,170 640,0 0,-108.78125 L 630,370 l -190,0 0,40 10,0 0,-30 180,0 0,90 -180,0 0,-30 -10,0 0,30 -430,0 0,-160 110,0 100,0 0,-20 -100,0 0,-190 100,0 0,-20 z"
+         id="path3793"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccccccccccccccccc" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="door-3"
+         width="10"
+         height="40"
+         x="470"
+         y="100"
+         inkscape:label="#rect8508" />
+      <rect
+         style="color:#000000;fill:#c8b7b7;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="door-6"
+         width="20"
+         height="40"
+         x="380"
+         y="220"
+         inkscape:label="#rect8510" />
     </g>
     <g
        inkscape:groupmode="layer"

@@ -33,10 +33,35 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
         .scale(view_scale)
         .size([container.offsetWidth, container.offsetHeight]);
 
+    var dragging = false;
+    function mousedown() {
+        dragging = true;
+    }
+
+    function mousemove() {
+        if (dragging) world.preventClick = true;
+    }
+
+    function mouseup() {
+        dragging = false;
+    }
+
+    function click() {
+        if (world.preventClick) {
+            d3.event.stopPropagation();
+            world.preventClick = false;
+        }
+    }
+
     // insert the main view SVG into the page
     var svg = d3.select(importedNode)
             .attr("id", "main-svg")
-            .call(zoom);
+            .call(zoom)
+    // The following listeners a hack to prevent collisions between panning and clicking
+            .on("mousedown", mousedown)
+            .on("mouseup", mouseup)
+            .on("mousemove", mousemove)
+            .on("click", click);
     d3.select("#view").node()
         .appendChild(importedNode);
 

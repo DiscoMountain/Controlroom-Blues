@@ -9,3 +9,13 @@
 .select {
     fill-opacity: 0.2;
 }
+
+.waypoint {
+    fill: rgb(240,240,0) !important;
+}
+
+#hero {
+    fill: rgb(0,255,0);
+    stroke: black;
+    stroke-width: 2px;
+}
