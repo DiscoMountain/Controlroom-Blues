@@ -73,8 +73,10 @@ var world;
                         if (!world.preventClick) {
                             var room = d3.event.target.id.split("-")[1], path;
                             this.hero.updatePath(room);
-                            if (this.hero.path.length)
-                                d3.select(d3.event.target).classed("waypoint", true);
+                            this.hero.path.forEach(function (r) {
+                                d3.select("#room-" + r.room)
+                                    .classed("waypoint", true);
+                            });
                         }
                     }.bind(this), true);
         }, this);
@@ -191,9 +193,9 @@ var world;
                     if (world.connections[hero.path[0].connection].open)
                         hero.destination = world.connections[hero.path[0].connection].center;
                     else {
+                        // Looks like a door was closed before our nose!
                         hero.path = [];
                         hero.destination = hero.position;
-                        d3.selectAll("rect").classed("waypoint", false);
                         return;
                     }
                 } else {
@@ -209,6 +211,7 @@ var world;
                     delete hero.path[0].connection;
                 else {
                     hero.room = hero.path.shift().room;
+                    d3.select("#room-" + hero.room).classed("waypoint", false);
                 }
                 hero.destination = null;
             } else {
