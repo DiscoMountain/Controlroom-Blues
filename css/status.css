@@ -14,8 +14,31 @@
     fill: rgb(240,240,0) !important;
 }
 
+@keyframes glow-green {
+    0% { fill: rgb(0,255,0) }
+    100% { fill: rgb(0,100,0); }
+}
+
+@-webkit-keyframes glow-green {
+    0% { fill: rgb(0,255,0) }
+    100% { fill: rgb(0,100,0); }
+}
+
 #hero {
     fill: rgb(0,255,0);
     stroke: black;
     stroke-width: 2px;
+
+    animation-name: glow-green;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    animation-direction: alternate;
+
+    -webkit-animation-name: glow-green;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-direction: alternate;
+
 }
