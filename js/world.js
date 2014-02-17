@@ -72,19 +72,7 @@ var world;
                             .classed("waypoint", false);
                         if (!world.preventClick) {
                             var room = d3.event.target.id.split("-")[1], path;
-                            if (this.hero.path.length) {
-                                // case where the hero is already on his way somewhere.
-                                // then let him continue on his way until he reaches the
-                                // next room, then switch to the new path.
-                                var next_room = this.hero.path[0].room;
-                                path = this.getShortestPath(next_room, room);
-                                if (path)
-                                    this.hero.path = [this.hero.path[0]].concat(path);
-                            } else {
-                                path = this.getShortestPath(this.hero.room, room);
-                                if (path)
-                                    this.hero.path = path;
-                            }
+                            this.hero.updatePath(room);
                             if (this.hero.path.length)
                                 d3.select(d3.event.target).classed("waypoint", true);
                         }
@@ -167,8 +155,26 @@ var world;
         this.destination = null;
     };
 
-    Entity.prototype.walk = function (map, dest) {
-        var path = map.getShortestPath(this.room, dest);
+    Entity.prototype.updatePath = function (destination) {
+        if (destination) {
+            var path;
+            if (this.path.length) {
+                // case where the hero is already on his way somewhere.
+                // then let him continue on his way until he reaches the
+                // next room, then switch to the new path.
+                var next_room = this.path[0].room;
+                path = world.getShortestPath(next_room, destination);
+                if (path)
+                    this.path = [this.path[0]].concat(path);
+            } else {
+                path = world.getShortestPath(this.room, destination);
+                if (path)
+                    this.path = path;
+            }
+         } else {
+             // the world has changed, check if the path needs updating
+
+         }
     };
 
     var t = Date.now();
@@ -182,7 +188,14 @@ var world;
                 // Need to give the hero a next destination
                 if (hero.path[0].connection && world.connections[hero.path[0].connection].center) {
                     // go through the door, if there is one
-                    hero.destination = world.connections[hero.path[0].connection].center;
+                    if (world.connections[hero.path[0].connection].open)
+                        hero.destination = world.connections[hero.path[0].connection].center;
+                    else {
+                        hero.path = [];
+                        hero.destination = hero.position;
+                        d3.selectAll("rect").classed("waypoint", false);
+                        return;
+                    }
                 } else {
                     console.log(hero.path[0]);
                     hero.destination = world.rooms[hero.path[0].room].center;
