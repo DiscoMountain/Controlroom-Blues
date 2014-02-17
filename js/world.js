@@ -271,7 +271,7 @@ var world;
             item_type = target.id.split("-")[0];
         switch (item_type) {
         case "door":
-            var door = world.connections[parseInt(target.id.split("-")[1])];
+            var door = world.connections[target.id.split("-")[1]];
             if (door.open) {
                 setStatus(target, "CLOSED");
             } else {
