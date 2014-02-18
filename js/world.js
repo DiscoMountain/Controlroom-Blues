@@ -4,37 +4,10 @@ var world;
 
     var view = d3.select("#main-svg");
 
-    function Vector(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    Vector.prototype.add = function (v) {
-        return new Vector(this.x + v.x, this.y + v.y);
-    };
-
-    Vector.prototype.subtract = function (v) {
-        return new Vector(this.x - v.x, this.y - v.y);
-    };
-
-    Vector.prototype.multiply = function (a) {
-        return new Vector(this.x * a, this.y * a);
-    };
-
-    Vector.prototype.length = function () {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-    };
-
-    Vector.prototype.dot = function (v) {
-        return this.x * v.x + this.y * v.y;
-    };
-
-
     // Representation of the game world
     function World(spec) {
         console.log("spec", spec);
         // actions
-        this.toggle = toggle;
         this.console =  function (s) {console.log("World console: " + s);};
 
         // data
@@ -73,10 +46,6 @@ var world;
                         if (!world.preventClick) {
                             var room = d3.event.target.id.split("-")[1], path;
                             this.hero.updatePath(room);
-                            this.hero.path.forEach(function (r) {
-                                d3.select("#room-" + r.room)
-                                    .classed("waypoint", true);
-                            });
                         }
                     }.bind(this), true);
         }, this);
@@ -175,8 +144,11 @@ var world;
             }
          } else {
              // the world has changed, check if the path needs updating
-
          }
+        this.path.forEach(function (r) {
+            d3.select("#room-" + r.room)
+                .classed("waypoint", true);
+        });
     };
 
     var t = Date.now();
@@ -263,39 +235,5 @@ var world;
             "g": {}
         }
     });
-
-    // Toggle status of something, depending on its type
-    function toggle (evt) {
-        evt.stopPropagation();
-        var target = evt.currentTarget,
-            item_type = target.id.split("-")[0];
-        switch (item_type) {
-        case "door":
-            var door = world.connections[target.id.split("-")[1]];
-            if (door.open) {
-                setStatus(target, "CLOSED");
-            } else {
-                setStatus(target, "OPEN");
-            }
-            door.open = !door.open;
-            break;
-        }
-        return false;
-    }
-
-    // Change the status (class) of an element
-    function setStatus (element, status) {
-        console.log("id: " + element.getAttribute("id"));
-        // TODO: the time it takes to trigger a change should be variable
-        setTimeout(function () {element.setAttribute("class", "status-" + status);}, 1000);
-        runAnim(element, status);
-    }
-
-    // Find any animations of a given type and run them
-    function runAnim (element, animName) {
-        var anim = Array.prototype.slice.call(element.querySelectorAll(
-            "animateMotion." + animName));
-        anim.forEach(function (a) {console.log(a); a.beginElement();});
-    }
 
 })();
