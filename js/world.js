@@ -123,7 +123,7 @@ var world;
         this.position = spec.position || world.rooms[this.room].center;
         this.speed = 50;
         this.path = [];
-        this.destination = null;
+        this.waypoint = null;
     };
 
     Entity.prototype.updatePath = function (destination) {
@@ -158,34 +158,34 @@ var world;
             var dt = (Date.now() - t) / 1000,
                 hero = world.hero;
 
-            if (!hero.destination) {
+            if (!hero.waypoint) {
                 // Need to give the hero a next destination
                 if (hero.path[0].connection && world.connections[hero.path[0].connection].center) {
                     // go through the door, if there is one
                     if (world.connections[hero.path[0].connection].open)
-                        hero.destination = world.connections[hero.path[0].connection].center;
+                        hero.waypoint = world.connections[hero.path[0].connection].center;
                     else {
                         // Looks like a door was closed before our nose!
                         hero.path = [];
-                        hero.destination = hero.position;
+                        hero.waypoint = hero.position;
                         return;
                     }
                 } else {
                     console.log(hero.path[0]);
-                    hero.destination = world.rooms[hero.path[0].room].center;
+                    hero.waypoint = world.rooms[hero.path[0].room].center;
                 }
             }
-            var direction = hero.destination.subtract(hero.position);
+            var direction = hero.waypoint.subtract(hero.position);
             if (direction.length() < dt * hero.speed) {
                 // we've reached a destination
-                hero.position = hero.destination;
+                hero.position = hero.waypoint;
                 if (hero.path[0].connection)
                     delete hero.path[0].connection;
                 else {
                     hero.room = hero.path.shift().room;
                     d3.select("#room-" + hero.room).classed("waypoint", false);
                 }
-                hero.destination = null;
+                hero.waypoint = null;
             } else {
                 // move towards the destination
                 hero.position = hero.position.add(
