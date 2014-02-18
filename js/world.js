@@ -2,7 +2,7 @@ var world;
 
 (function () {
 
-    var view = d3.select("#main-svg");
+    var view = d3.select("#main-svg"), t;
 
     // Representation of the game world
     function World(spec) {
@@ -41,8 +41,6 @@ var world;
             var el = this.view.select("#room-" + room)
                     .style("fill", "lightblue")
                     .on("click", function () {
-                        d3.selectAll("rect")
-                            .classed("waypoint", false);
                         if (!world.preventClick) {
                             var room = d3.event.target.id.split("-")[1], path;
                             this.hero.updatePath(room);
@@ -50,10 +48,12 @@ var world;
                     }.bind(this), true);
         }, this);
         this.hero = new Entity({room: "a"});
-        setInterval(update, 50);
+
+        t = Date.now();
+        setInterval(update, 50);  // start the "main loop"
     };
 
-    // find the coordinates of the center of a room
+    // find the coordinates of the center of something
     World.prototype.getCenter = function (type, id) {
         var el = d3.select("#" + type + "-" + id);
         if (!el.empty())
@@ -145,14 +145,16 @@ var world;
          } else {
              // the world has changed, check if the path needs updating
          }
+        d3.selectAll("rect")
+            .classed("waypoint", false);
         this.path.forEach(function (r) {
             d3.select("#room-" + r.room)
                 .classed("waypoint", true);
         });
     };
 
-    var t = Date.now();
-
+    // This is the main loop that is run several times per second. It updates
+    // the hero's position... and not much else so far :)
     function update() {
         if (world.hero.path.length) {
             var dt = (Date.now() - t) / 1000,
