@@ -268,7 +268,7 @@ var world;
 
     function drawEntities () {
 
-        var h = world.view.select("#layer5").selectAll("circle.hero")
+        var h = world.view.select("g.monsters").selectAll("circle.hero")
                 .data([world.hero])
                 .attr("cx", function (d) {return d.position.x;})
                 .attr("cy", function (d) {return d.position.y;});
@@ -279,7 +279,7 @@ var world;
             .attr("cy", function (d) {return d.position.y;});
 
 
-        var m = world.view.select("#layer4").selectAll("circle.monster")
+        var m = world.view.select("g.hero").selectAll("circle.monster")
             .data(world.monsters)
             .attr("r", 10)
             .attr("cx", function (d) {return d.position.x;})
