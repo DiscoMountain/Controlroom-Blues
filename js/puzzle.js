@@ -48,16 +48,24 @@ function keyboard(){
 		.attr("width", 40)
 		.attr("height", 20)	
 		.attr("x", 50)
-		.attr("y", 200);
+		.attr("y", 200)
+		.on("mousedown", function(){sampleSVG.remove();});
+
 		
 	sampleSVG.append("rect")
 		.style("stroke", "gray")
-		.style("fill", "aliceblue")
+		.style("fill", "red")
 		.attr("width", 40)
 		.attr("height", 20)	
 		.attr("x", 100)
-		.attr("y", 200);
-		.on("mousedown", function(){d3.select(main-svg).remove();});
+		.attr("y", 200)
+		.on("mousedown", function(){sampleSVG.remove();});
+	
+	sampleSVG.append("text")
+		.attr("x", 110)
+		.attr("y", 210)
+		.attr("font-size", 8)
+		.text("cancel");
 
 }
 
