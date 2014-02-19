@@ -268,7 +268,7 @@ var world;
 
     function drawEntities () {
 
-        var h = world.view.select("g.monsters").selectAll("circle.hero")
+        var h = world.view.select("g.hero").selectAll("circle.hero")
                 .data([world.hero])
                 .attr("cx", function (d) {return d.position.x;})
                 .attr("cy", function (d) {return d.position.y;});
@@ -278,14 +278,14 @@ var world;
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
 
-
-        var m = world.view.select("g.hero").selectAll("circle.monster")
-            .data(world.monsters)
-            .attr("r", 10)
-            .attr("cx", function (d) {return d.position.x;})
-            .attr("cy", function (d) {return d.position.y;});
+        var m = world.view.select("g.monsters").selectAll("circle.monster")
+                .data(world.monsters)
+                //.attr("r", function (d) {return d.health / 10;})
+                .attr("cx", function (d) {return d.position.x;})
+                .attr("cy", function (d) {return d.position.y;});
         m.enter().append("circle")
             .classed("monster", true)
+            .attr("r", 10)
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
         m.exit().remove();
