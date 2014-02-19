@@ -31,11 +31,6 @@ var world;
             this.rooms[r].center = this.getCenter("room", r);
         }, this);
 
-        // some tests
-        console.log("neigh", world.getConnectedRooms("b"));
-        console.log("path", world.getShortestPath("a", "c"));
-        console.log("room a is at", world.getCenter("room", "a"));
-
         // setup click listeners on the rooms
         Object.keys(this.rooms).forEach(function (room, i) {
             var el = this.view.select("#room-" + room)
