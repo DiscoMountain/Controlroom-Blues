@@ -42,23 +42,23 @@ function keyboard(){
 			}
 			});	
 		
-
-	
-}
-
-// Trying just to get a popup over the map to begin with.
-function puzzled(){
-	d3.select("#main-svg").append("rect")
+	sampleSVG.append("rect")
 		.style("stroke", "gray")
-		.style("fill", "white")
-		.attr("width", 200)
-		.attr("height", 200)
-		.attr("x", 20)
-		.attr("y", 20)
-		.attr("id", "popup")
-		.style("fill", "blue")
-		.on("mouseover", function(){d3.select(this).style("fill", "aliceblue");})
-		.on("mouseout", function(){d3.select(this).style("fill", "blue");})
-		.on("mousedown", function(){d3.select(this).remove();});		
+		.style("fill", "aliceblue")
+		.attr("width", 40)
+		.attr("height", 20)	
+		.attr("x", 50)
+		.attr("y", 200);
+		
+	sampleSVG.append("rect")
+		.style("stroke", "gray")
+		.style("fill", "aliceblue")
+		.attr("width", 40)
+		.attr("height", 20)	
+		.attr("x", 100)
+		.attr("y", 200);
+		.on("mousedown", function(){d3.select(main-svg).remove();});
+
 }
+
 
