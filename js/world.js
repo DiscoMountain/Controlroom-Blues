@@ -47,7 +47,7 @@ var world;
         updateHud();
 
         t = Date.now() / 1000;
-        setInterval(update, 50);  // start the "main loop"
+        setInterval(update, 100);  // start the "main loop"
     };
 
     // find the coordinates of the center of something
