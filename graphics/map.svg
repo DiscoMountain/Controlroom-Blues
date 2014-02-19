@@ -253,5 +253,7 @@
          y="100"
          inkscape:label="#rect8508" />
     </g>
+    <g class="monsters"/>
+    <g class="hero"/>
   </g>
 </svg>

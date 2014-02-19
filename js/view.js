@@ -13,16 +13,17 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
     function zoomed () {
         // update the zoom level and offset on the main view
         svg.select("g").attr("transform",
-                 "translate(" + d3.event.translate + ")" +
-                 "scale(" + d3.event.scale + ")");
+                             "translate(" + d3.event.translate + ")" +
+                             "scale(" + d3.event.scale + ")");  // + (0.67 * d3.event.scale) + ")" +
+                             //"rotate(30, " + (svg_width / 2) + ", " + (svg_height / 2) + ")");
 
         // ...and update the position and size of the view rectangle in the overview.
-        var scale = svg_small_scale / d3.event.scale;
-        d3.select(thumbnail_rect)
-            .style("left", Math.round(-d3.event.translate[0] * scale))
-            .style("top", Math.round(-d3.event.translate[1] * scale))
-            .style("width", Math.round(container.offsetWidth * scale))
-            .style("height", Math.round(container.offsetHeight * scale));
+        var scale = 1 / d3.event.scale;
+        d3.select("#view-rect")
+            .attr("x", -d3.event.translate[0] * scale)
+            .attr("y", -d3.event.translate[1] * scale)
+            .attr("width", view_width * scale)
+            .attr("height", view_height * scale);
     }
 
     // A D3 zoom "behavior" to attach to the SVG, allowing panning and zooming
@@ -75,7 +76,11 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
             .attr("viewBox", "0 0 " + importedNode.getAttribute("width") + " " + importedNode.getAttribute("height"))
             .attr("width", thumbnail_container.offsetWidth)
             .attr("height", thumbnail_height)
-            .attr("preserveAspectRatio", "true");
+            .attr("preserveAspectRatio", "true")
+
+            .append("rect")  // view indicator
+            .attr("id", "view-rect");
+
     thumbnail_container.insertBefore(svg_tmp, thumbnail_container.firstChild);
     thumbnail_container.style.height = thumbnail_height;
 
