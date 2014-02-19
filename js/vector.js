@@ -3,6 +3,10 @@ function Vector(x, y) {
     this.y = y;
 }
 
+Vector.prototype.copy = function () {
+    return new Vector(this.x, this.y);
+};
+
 Vector.prototype.add = function (v) {
     return new Vector(this.x + v.x, this.y + v.y);
 };

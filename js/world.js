@@ -28,6 +28,7 @@ var world;
 
         Object.keys(this.rooms).forEach(function (r) {
             this.rooms[r].center = this.getCenter("room", r);
+            this.rooms[r].rect = this.getRect("room", r);
         }, this);
 
         // setup click listeners on the rooms
@@ -43,7 +44,7 @@ var world;
         }, this);
 
         this.hero = new Entity({room: "a", isHero: true});
-        this.monsters = [];
+        this.monsters = [new Entity({room: "d"})];
         updateHud();
 
         t = Date.now() / 1000;
@@ -56,6 +57,15 @@ var world;
         if (!el.empty())
             return new Vector(parseInt(el.attr("x")) + parseInt(el.attr("width")) / 2,
                               parseInt(el.attr("y")) + parseInt(el.attr("height")) / 2);
+        else
+            return null;
+    };
+
+    World.prototype.getRect = function (type, id) {
+        var el = d3.select("#" + type + "-" + id);
+        if (!el.empty())
+            return{left: parseInt(el.attr("x")), top: parseInt(el.attr("y")),
+                   width: parseInt(el.attr("width")), height: parseInt(el.attr("height"))};
         else
             return null;
     };
@@ -117,7 +127,7 @@ var world;
     // Representation of someone (hero, monster, ...) or something
     function Entity(spec) {
         this.room = spec.room;
-        this.position = spec.position || world.rooms[this.room].center;
+        this.position = spec.position || world.rooms[this.room].center.copy();
         this.isHero = spec.isHero;  // hmm 
         this.speed = 50;
         this.path = [];
@@ -174,7 +184,7 @@ var world;
                 if (entity.path[0].connection && world.connections[entity.path[0].connection].center) {
                     // go through the door, if there is one
                     if (world.connections[entity.path[0].connection].open)
-                        entity.waypoint = world.connections[entity.path[0].connection].center;
+                        entity.waypoint = world.connections[entity.path[0].connection].center.copy();
                     else {
                         // Looks like a door was closed before our nose!
                         entity.path = [];
@@ -183,7 +193,8 @@ var world;
                     }
                 } else {
                     console.log(entity.path[0]);
-                    entity.waypoint = world.rooms[entity.path[0].room].center;
+                    entity.room = entity.path[0].room;
+                    entity.waypoint = world.rooms[entity.room].center.copy();
                 }
             }
             var direction = entity.waypoint.subtract(entity.position);
@@ -206,6 +217,15 @@ var world;
                 // finally there!
                 d3.selectAll("rect").classed("waypoint", false);
             }
+        }
+        // Add some random walking to make it look more realistic
+        if (!entity.waypoint && Math.random() < 0.05) {
+            var offset_dir = Math.PI * 2 * Math.random();  // a random angle
+            var rect = world.rooms[entity.room].rect;
+            entity.position.x = Math.min(rect.left + rect.width, 
+                                         Math.max(rect.left, entity.position.x + 5 * Math.cos(offset_dir)));
+            entity.position.y = Math.min(rect.top + rect.height, 
+                                         Math.max(rect.top, entity.position.y + 5 * Math.sin(offset_dir)));
         }
     }
 
@@ -247,18 +267,19 @@ var world;
     }
 
     function drawEntities () {
-        var s = world.view.select("g").selectAll("circle.hero")
+
+        var h = world.view.select("#layer5").selectAll("circle.hero")
                 .data([world.hero])
-                .enter().append("circle")
-                .classed("hero", true)
-                .attr("r", 10)
                 .attr("cx", function (d) {return d.position.x;})
                 .attr("cy", function (d) {return d.position.y;});
-        world.view.select("circle")
+        h.enter().append("circle")
+            .classed("hero", true)
+            .attr("r", 10)
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
 
-        var m = world.view.select("g").selectAll("circle.monster")
+
+        var m = world.view.select("#layer4").selectAll("circle.monster")
             .data(world.monsters)
             .attr("r", 10)
             .attr("cx", function (d) {return d.position.x;})
@@ -268,6 +289,7 @@ var world;
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
         m.exit().remove();
+
     };
 
     world = new World({

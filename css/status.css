@@ -36,7 +36,7 @@
 
 circle.hero {
     fill: rgb(0,255,0);
-    stroke: black;
+    stroke: white;
     stroke-width: 2px;
 
     /* animation-name: glow-green; */
@@ -54,7 +54,7 @@ circle.hero {
 
 circle.monster {
     fill: rgb(255,0,0);
-    stroke: black;
+    stroke: white;
     stroke-width: 2px;
 
     /* animation-name: glow-red; */
