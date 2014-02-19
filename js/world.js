@@ -12,7 +12,6 @@ var world;
 
         // data
         this.connections = spec.connections;
-
         this.rooms = spec.rooms;
         this.hero = spec.hero;
 
@@ -42,9 +41,13 @@ var world;
                         }
                     }.bind(this), true);
         }, this);
-        this.hero = new Entity({room: "a"});
 
-        t = Date.now();
+        this.hero = new Entity({room: "a", isHero: true});
+        this.monsters = [
+            new Entity({room: "g"})
+        ];
+
+        t = Date.now() / 1000;
         setInterval(update, 50);  // start the "main loop"
     };
 
@@ -116,9 +119,16 @@ var world;
     function Entity(spec) {
         this.room = spec.room;
         this.position = spec.position || world.rooms[this.room].center;
+        this.isHero = spec.isHero;  // hmm 
         this.speed = 50;
         this.path = [];
         this.waypoint = null;
+
+        this.sleepUntil = 0;
+
+        this.health = 100;
+        this.ammo = 100;
+        this.morale = 100;
     };
 
     Entity.prototype.updatePath = function (destination) {
@@ -137,75 +147,100 @@ var world;
                 if (path)
                     this.path = path;
             }
-         } else {
-             // the world has changed, check if the path needs updating
-         }
-        d3.selectAll("rect")
-            .classed("waypoint", false);
-        this.path.forEach(function (r) {
-            d3.select("#room-" + r.room)
-                .classed("waypoint", true);
-        });
+        } else {
+            // the world has changed, check if the path needs updating
+        }
+        if (this.isHero) {
+            d3.selectAll("rect")
+                .classed("waypoint", false);
+            this.path.forEach(function (r) {
+                d3.select("#room-" + r.room)
+                    .classed("waypoint", true);
+            });
+        }
     };
 
-    // This is the main loop that is run several times per second. It updates
-    // the hero's position... and not much else so far :)
-    function update() {
-        if (world.hero.path.length) {
-            var dt = (Date.now() - t) / 1000,
-                hero = world.hero;
+    function updateEntity(entity) {
+        if (entity.path.length) {
+            var dt = (Date.now() / 1000 - t);
 
-            if (!hero.waypoint) {
-                // Need to give the hero a next destination
-                if (hero.path[0].connection && world.connections[hero.path[0].connection].center) {
+            if (!entity.waypoint) {
+                // Need to give the entity a next destination
+                if (entity.path[0].connection && world.connections[entity.path[0].connection].center) {
                     // go through the door, if there is one
-                    if (world.connections[hero.path[0].connection].open)
-                        hero.waypoint = world.connections[hero.path[0].connection].center;
+                    if (world.connections[entity.path[0].connection].open)
+                        entity.waypoint = world.connections[entity.path[0].connection].center;
                     else {
                         // Looks like a door was closed before our nose!
-                        hero.path = [];
-                        hero.waypoint = hero.position;
+                        entity.path = [];
+                        entity.waypoint = entity.position;
                         return;
                     }
                 } else {
-                    console.log(hero.path[0]);
-                    hero.waypoint = world.rooms[hero.path[0].room].center;
+                    console.log(entity.path[0]);
+                    entity.waypoint = world.rooms[entity.path[0].room].center;
                 }
             }
-            var direction = hero.waypoint.subtract(hero.position);
-            if (direction.length() < dt * hero.speed) {
+            var direction = entity.waypoint.subtract(entity.position);
+            if (direction.length() < dt * entity.speed) {
                 // we've reached a destination
-                hero.position = hero.waypoint;
-                if (hero.path[0].connection)
-                    delete hero.path[0].connection;
+                entity.position = entity.waypoint;
+                if (entity.path[0].connection)
+                    delete entity.path[0].connection;
                 else {
-                    hero.room = hero.path.shift().room;
-                    d3.select("#room-" + hero.room).classed("waypoint", false);
+                    entity.room = entity.path.shift().room;
+                    d3.select("#room-" + entity.room).classed("waypoint", false);
                 }
-                hero.waypoint = null;
+                entity.waypoint = null;
             } else {
                 // move towards the destination
-                hero.position = hero.position.add(
-                    direction.multiply(dt * hero.speed / direction.length()));
+                entity.position = entity.position.add(
+                    direction.multiply(dt * entity.speed / direction.length()));
             }
-            if (hero.path.length === 0) {
+            if (entity.path.length === 0) {
                 // finally there!
                 d3.selectAll("rect").classed("waypoint", false);
             }
         }
-        t = Date.now();
+    }
+
+    // This is the main loop that is run several times per second. It updates
+    // the hero's position... and not much else so far :)
+    function update() {
+        updateEntity(world.hero);
+        world.monsters.forEach(function (monster) {
+            if (!monster.path.length && monster.sleepUntil < t) {
+                var conn = world.getConnectedRooms(monster.room),
+                    room = (_.sample(Object.keys(conn)));
+                monster.path = [{room: room, connection: conn[room]}];
+                monster.sleepUntil = t + 5 + 10 * Math.random();
+            }
+            updateEntity(monster);
+        });
+        t = Date.now() / 1000;
         drawEntities();
     }
 
     function drawEntities () {
-        var s = world.view.select("g").selectAll("circle")
+        var s = world.view.select("g").selectAll("circle.hero")
                 .data([world.hero])
                 .enter().append("circle")
-                .attr("id", "hero")
+                .classed("hero", true)
                 .attr("r", 10)
                 .attr("cx", function (d) {return d.position.x;})
                 .attr("cy", function (d) {return d.position.y;});
         world.view.select("circle")
+            .attr("cx", function (d) {return d.position.x;})
+            .attr("cy", function (d) {return d.position.y;});
+
+        world.view.select("g").selectAll("circle.monster")
+                .data(world.monsters)
+                .enter().append("circle")
+                .classed("monster", true)
+                .attr("r", 10)
+                .attr("cx", function (d) {return d.position.x;})
+                .attr("cy", function (d) {return d.position.y;});
+        world.view.select("circle.monster")
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
     };
@@ -231,6 +266,7 @@ var world;
             "e": {},
             "g": {}
         }
+
     });
 
 })();

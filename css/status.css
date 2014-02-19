@@ -24,7 +24,17 @@
     100% { fill: rgb(0,100,0); }
 }
 
-#hero {
+@keyframes glow-red {
+    0% { fill: rgb(255,0,0) }
+    100% { fill: rgb(100,0,0); }
+}
+
+@-webkit-keyframes glow-red {
+    0% { fill: rgb(255,0,0) }
+    100% { fill: rgb(100,0,0); }
+}
+
+circle.hero {
     fill: rgb(0,255,0);
     stroke: black;
     stroke-width: 2px;
@@ -36,6 +46,24 @@
     animation-direction: alternate;
 
     -webkit-animation-name: glow-green;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-direction: alternate;
+}
+
+circle.monster {
+    fill: rgb(0,255,0);
+    stroke: black;
+    stroke-width: 2px;
+
+    animation-name: glow-red;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    animation-direction: alternate;
+
+    -webkit-animation-name: glow-red;
     -webkit-animation-duration: 1s;
     -webkit-animation-iteration-count: infinite;
     -webkit-animation-timing-function: ease-in-out;
