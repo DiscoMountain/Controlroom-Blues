@@ -43,10 +43,8 @@ var world;
         }, this);
 
         this.hero = new Entity({room: "a", isHero: true});
+        this.monsters = [];
         updateHud();
-        this.monsters = [
-            new Entity({room: "g"})
-        ];
 
         t = Date.now() / 1000;
         setInterval(update, 50);  // start the "main loop"
@@ -216,9 +214,14 @@ var world;
     var turn = 0;
     function update() {
         updateEntity(world.hero);
-        if (world.hero.health < 100 && turn % 20 == 0) {
+        if (world.hero.health < 100 && turn % 10 == 0) {
             world.hero.health = Math.min(100, world.hero.health + 0.2);
             updateHud();
+        }
+        if (turn % 20 == 0) {
+            if (Math.random() < 0.1)
+                if (world.monsters.length < 5)
+                    world.monsters.push(new Entity({room: _.sample(_.keys(world.rooms))}));
         }
         world.monsters.forEach(function (monster) {
             updateEntity(monster);
@@ -237,6 +240,7 @@ var world;
                     world.monsters = _.without(world.monsters, monster);
             }
         });
+        
         t = Date.now() / 1000;
         drawEntities();
         turn++;
