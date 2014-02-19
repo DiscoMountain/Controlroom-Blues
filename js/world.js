@@ -173,6 +173,14 @@ var world;
         hud.innerHTML = [
             "HEALTH: " + Math.round(world.hero.health) + "%"
         ].join();
+        if (world.hero.health < 20) {
+            hud.className = "critical";
+        } else {
+            if (world.hero.health < 80)
+                hud.className = "hurt";
+            else
+                hud.className = null;
+        }
     };
 
     function updateEntity(entity) {
@@ -195,6 +203,8 @@ var world;
                     console.log(entity.path[0]);
                     entity.room = entity.path[0].room;
                     entity.waypoint = world.rooms[entity.room].center.copy();
+                    if (entity.path.length == 1)
+                        entity.waypoint = randomOffsetInRoom(entity.waypoint, entity.room, 0.2);
                 }
             }
             var direction = entity.waypoint.subtract(entity.position);
@@ -220,13 +230,18 @@ var world;
         }
         // Add some random walking to make it look more realistic
         if (!entity.waypoint && Math.random() < 0.05) {
-            var offset_dir = Math.PI * 2 * Math.random();  // a random angle
-            var rect = world.rooms[entity.room].rect;
-            entity.position.x = Math.min(rect.left + rect.width, 
-                                         Math.max(rect.left, entity.position.x + 5 * Math.cos(offset_dir)));
-            entity.position.y = Math.min(rect.top + rect.height, 
-                                         Math.max(rect.top, entity.position.y + 5 * Math.sin(offset_dir)));
+            entity.position = randomOffsetInRoom(entity.position, entity.room, Math.random() * 0.1);
         }
+    }
+
+    function randomOffsetInRoom(position, room, scale) {
+        var offset_dir = Math.PI * 2 * Math.random();  // a random angle
+        var rect = world.rooms[room].rect;
+        return new Vector(
+            Math.min(rect.left + rect.width, 
+                     Math.max(rect.left, position.x + rect.width*scale * Math.cos(offset_dir))),
+            Math.min(rect.top + rect.height, 
+                     Math.max(rect.top, position.y + rect.height*scale * Math.sin(offset_dir))));
     }
 
     // This is the main loop that is run several times per second. It updates

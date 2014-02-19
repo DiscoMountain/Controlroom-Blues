@@ -8,3 +8,13 @@
     padding: 5px;
     font-family: sans;
 }
+
+#hud.hurt {
+    color: yellow;
+    border: 2px solid yellow;    
+}
+
+#hud.critical {
+    color: red;
+    border: 2px solid red;    
+}
