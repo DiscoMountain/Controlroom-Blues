@@ -185,51 +185,48 @@ var world;
 
     function updateEntity(entity) {
         if (entity.path.length) {
-            var dt = (Date.now() / 1000 - t);
+            var dt = (Date.now() / 1000 - t),
+                conn = entity.path[0].connection;
 
-            if (!entity.waypoint) {
-                // Need to give the entity a next destination
-                if (entity.path[0].connection && world.connections[entity.path[0].connection].center) {
+            if (!entity.waypoint) { // Need to give the entity a next destination
+                if (conn && world.connections[conn].center) {
                     // go through the door, if there is one
-                    if (world.connections[entity.path[0].connection].open)
-                        entity.waypoint = world.connections[entity.path[0].connection].center.copy();
-                    else {
-                        // Looks like a door was closed before our nose!
+                    if (world.connections[conn].open) {
+                        entity.waypoint = world.connections[conn].center.copy();
+                    } else {  // Looks like a door was closed before our nose!
                         entity.path = [];
                         entity.waypoint = entity.position;
                         return;
                     }
-                } else {
-                    console.log(entity.path[0]);
+                } else {  // no door; rooms are not separated
                     entity.room = entity.path[0].room;
-                    entity.waypoint = world.rooms[entity.room].center.copy();
-                    if (entity.path.length == 1)
-                        entity.waypoint = randomOffsetInRoom(entity.waypoint, entity.room, 0.2);
-                }
-            }
-            var direction = entity.waypoint.subtract(entity.position);
-            if (direction.length() < dt * entity.speed) {
-                // we've reached a destination
-                entity.position = entity.waypoint;
-                if (entity.path[0].connection)
                     delete entity.path[0].connection;
-                else {
-                    entity.room = entity.path.shift().room;
-                    d3.select("#room-" + entity.room).classed("waypoint", false);
+                    if (entity.path.length === 1) {
+                        entity.waypoint = randomOffsetInRoom(world.rooms[entity.room].center,
+                                                             entity.room, 0.2);
+                    } else {
+                        entity.waypoint = world.rooms[entity.room].center.copy();
+                    }
                 }
-                entity.waypoint = null;
-            } else {
-                // move towards the destination
-                entity.position = entity.position.add(
-                    direction.multiply(dt * entity.speed / direction.length()));
-            }
-            if (entity.path.length === 0) {
-                // finally there!
-                d3.selectAll("rect").classed("waypoint", false);
+            } else {  // already have a destination, let's move towards it
+                var direction = entity.waypoint.subtract(entity.position);
+                if (direction.length() < dt * entity.speed) { // we've reached a waypoint
+                    entity.position = entity.waypoint;
+                    if (conn)
+                        delete entity.path[0].connection;
+                    else {
+                        entity.room = entity.path.shift().room;
+                        d3.select("#room-" + entity.room).classed("waypoint", false);
+                    }
+                    entity.waypoint = null;
+                } else { // move towards the destination
+                    entity.position = entity.position.add(
+                        direction.multiply(dt * entity.speed / direction.length()));
+                }
             }
         }
-        // Add some random walking to make it look more realistic
-        if (!entity.waypoint && Math.random() < 0.05) {
+        // if we're stationary, do some random walking to make things look more alive
+        if (!entity.waypoint && turn % 10 === 0 && Math.random() < 0.2) {
             entity.position = randomOffsetInRoom(entity.position, entity.room, Math.random() * 0.1);
         }
     }
@@ -238,51 +235,58 @@ var world;
         var offset_dir = Math.PI * 2 * Math.random();  // a random angle
         var rect = world.rooms[room].rect;
         return new Vector(
-            Math.min(rect.left + rect.width, 
-                     Math.max(rect.left, position.x + rect.width*scale * Math.cos(offset_dir))),
-            Math.min(rect.top + rect.height, 
-                     Math.max(rect.top, position.y + rect.height*scale * Math.sin(offset_dir))));
+            Math.min(rect.left + rect.width - 5, 
+                     Math.max(rect.left + 5, position.x + rect.width*scale * Math.cos(offset_dir))),
+            Math.min(rect.top + rect.height - 5, 
+                     Math.max(rect.top + 5, position.y + rect.height*scale * Math.sin(offset_dir))));
     }
 
     // This is the main loop that is run several times per second. It updates
     // the hero's position... and not much else so far :)
     var turn = 0;
     function update() {
+        // update hero
         updateEntity(world.hero);
         if (world.hero.health < 100 && turn % 10 == 0) {
             world.hero.health = Math.min(100, world.hero.health + 0.2);
             updateHud();
         }
-        if (turn % 20 == 0) {
+        // spawn new monsters
+        if (turn % 20 == 0) {  
             if (Math.random() < 0.1)
                 if (world.monsters.length < 3)
                     world.monsters.push(new Entity({room: _.sample(_.keys(world.rooms))}));
         }
+        // update each monster
         world.monsters.forEach(function (monster) {
             updateEntity(monster);
             if (turn % 20 == 0) {
+                // randomly walk from room to room
                 if (!monster.path.length && monster.sleepUntil < t) {
                     var conn = world.getConnectedRooms(monster.room),
                         room = (_.sample(Object.keys(conn)));
                     monster.path = [{room: room, connection: conn[room]}];
                     monster.sleepUntil = t + 5 + 10 * Math.random();
                 }
+                // fight the hero
                 if (monster.room == world.hero.room) {
                     monster.health -= 20;
                     world.hero.health -= 5;
                 }
+                // remove if dead
                 if (monster.health <= 0)
                     world.monsters = _.without(world.monsters, monster);
             }
         });
         
-        t = Date.now() / 1000;
         drawEntities();
+        t = Date.now() / 1000;
         turn++;
     }
 
     function drawEntities () {
 
+        // draw the hero
         var h = world.view.select("g.hero").selectAll("circle.hero")
                 .data([world.hero])
                 .attr("cx", function (d) {return d.position.x;})
@@ -293,6 +297,7 @@ var world;
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
 
+        // draw all monsters
         var m = world.view.select("g.monsters").selectAll("circle.monster")
                 .data(world.monsters)
                 //.attr("r", function (d) {return d.health / 10;})
