@@ -220,7 +220,7 @@ var world;
         }
         if (turn % 20 == 0) {
             if (Math.random() < 0.1)
-                if (world.monsters.length < 5)
+                if (world.monsters.length < 3)
                     world.monsters.push(new Entity({room: _.sample(_.keys(world.rooms))}));
         }
         world.monsters.forEach(function (monster) {
