@@ -1,0 +1,10 @@
+#hud {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: lightgreen;
+    border: 2px solid lightgreen;
+    background-color: rgba(0,0,0,0.5);
+    padding: 5px;
+    font-family: sans;
+}

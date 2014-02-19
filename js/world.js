@@ -2,7 +2,7 @@ var world;
 
 (function () {
 
-    var view = d3.select("#main-svg"), t;
+    var view = d3.select("#main-svg"), hud = document.getElementById("hud"), t;
 
     // Representation of the game world
     function World(spec) {
@@ -43,6 +43,7 @@ var world;
         }, this);
 
         this.hero = new Entity({room: "a", isHero: true});
+        updateHud();
         this.monsters = [
             new Entity({room: "g"})
         ];
@@ -160,6 +161,12 @@ var world;
         }
     };
 
+    function updateHud() {
+        hud.innerHTML = [
+            "HEALTH: " + Math.round(world.hero.health) + "%"
+        ].join();
+    };
+
     function updateEntity(entity) {
         if (entity.path.length) {
             var dt = (Date.now() / 1000 - t);
@@ -206,19 +213,33 @@ var world;
 
     // This is the main loop that is run several times per second. It updates
     // the hero's position... and not much else so far :)
+    var turn = 0;
     function update() {
         updateEntity(world.hero);
+        if (world.hero.health < 100 && turn % 20 == 0) {
+            world.hero.health = Math.min(100, world.hero.health + 0.2);
+            updateHud();
+        }
         world.monsters.forEach(function (monster) {
-            if (!monster.path.length && monster.sleepUntil < t) {
-                var conn = world.getConnectedRooms(monster.room),
-                    room = (_.sample(Object.keys(conn)));
-                monster.path = [{room: room, connection: conn[room]}];
-                monster.sleepUntil = t + 5 + 10 * Math.random();
-            }
             updateEntity(monster);
+            if (turn % 20 == 0) {
+                if (!monster.path.length && monster.sleepUntil < t) {
+                    var conn = world.getConnectedRooms(monster.room),
+                        room = (_.sample(Object.keys(conn)));
+                    monster.path = [{room: room, connection: conn[room]}];
+                    monster.sleepUntil = t + 5 + 10 * Math.random();
+                }
+                if (monster.room == world.hero.room) {
+                    monster.health -= 20;
+                    world.hero.health -= 5;
+                }
+                if (monster.health <= 0)
+                    world.monsters = _.without(world.monsters, monster);
+            }
         });
         t = Date.now() / 1000;
         drawEntities();
+        turn++;
     }
 
     function drawEntities () {
@@ -233,16 +254,16 @@ var world;
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
 
-        world.view.select("g").selectAll("circle.monster")
-                .data(world.monsters)
-                .enter().append("circle")
-                .classed("monster", true)
-                .attr("r", 10)
-                .attr("cx", function (d) {return d.position.x;})
-                .attr("cy", function (d) {return d.position.y;});
-        world.view.select("circle.monster")
+        var m = world.view.select("g").selectAll("circle.monster")
+            .data(world.monsters)
+            .attr("r", 10)
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;});
+        m.enter().append("circle")
+            .classed("monster", true)
+            .attr("cx", function (d) {return d.position.x;})
+            .attr("cy", function (d) {return d.position.y;});
+        m.exit().remove();
     };
 
     world = new World({
