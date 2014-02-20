@@ -4,6 +4,8 @@ var world;
 
     var view = d3.select("#main-svg"), hud = document.getElementById("hud"), t;
 
+    var standard_monster_spec = {room: "d", chanceToHit: 0.25, weaponDamage: 3};
+    
     // Representation of the game world
     function World(spec) {
         console.log("spec", spec);
@@ -43,12 +45,14 @@ var world;
                     }.bind(this), true);
         }, this);
 
-        this.hero = new Entity({room: "a", isHero: true});
-        this.monsters = [new Entity({room: "d"})];
-        updateHud();
+        this.hero = new Entity({room: "a", isHero: true, weaponDamage: 20, healing: 1});
+        this.monsters = [new Entity(standard_monster_spec)];
 
-        t = Date.now() / 1000;
-        update();  // start the "main loop"
+        // start some update loops
+        setInterval(drawEntities, 100);
+        setInterval(updateHud, 1005);
+        setInterval(spawnMonsters, 5100, 0.5);
+        setInterval(reapMonsters, 2100);
     };
 
     // find the coordinates of the center of something
@@ -132,13 +136,28 @@ var world;
         this.speed = 50;
         this.path = [];
         this.waypoint = null;
-        this.name = Math.random().toString(36).replace(/[^a-z]+/g, '');
+        this.changeToHit = spec.changeToHit || 0.5;
+        this.weaponDamage = spec.weaponDamage || 10;
+        this.name = this.isHero? "Hero" : Math.random().toString(36).replace(/[^a-z]+/g, '');
 
+        this.healing = spec.healing || 0;
+        
         this.sleepUntil = 0;
 
         this.health = 100;
         this.ammo = 100;
         this.morale = 100;
+
+        brownianWalkLoop(this);
+        if (!this.isHero)
+            randomWalkLoop(this);
+        fightLoop(this, 1.01);
+        healLoop(this, 5.1);
+        //visibilityLoop(this, 1);
+    };
+
+    Entity.prototype.setRoom = function (room) {
+        this.room = room;
     };
 
     Entity.prototype.updatePath = function (destination) {
@@ -148,10 +167,10 @@ var world;
                 // case where the hero is already on his way somewhere.
                 // then let him continue on his way until he reaches the
                 // next room, then switch to the new path.
-                var next_room = this.path[0].room;
-                path = world.getShortestPath(next_room, destination);
+                var next = this.path[0];
+                path = world.getShortestPath(next.room, destination);
                 if (path)
-                    this.path = [this.path[0]].concat(path);
+                    this.path = [next].concat(path);
             } else {
                 path = world.getShortestPath(this.room, destination);
                 if (path)
@@ -161,82 +180,117 @@ var world;
             // the world has changed, check if the path needs updating
         }
         if (this.isHero) {
-            d3.selectAll("rect")
+            d3.selectAll(".waypoint")
                 .classed("waypoint", false);
             this.path.forEach(function (r) {
                 d3.select("#room-" + r.room)
                     .classed("waypoint", true);
             });
         }
+        followPath(this);
     };
 
-    function updateHud() {
-        hud.innerHTML = [
-            "HEALTH: " + Math.round(world.hero.health) + "%"
-        ].join();
-        if (world.hero.health < 20) {
-            hud.className = "critical";
-        } else {
-            if (world.hero.health < 80)
-                hud.className = "hurt";
-            else
-                hud.className = null;
-        }
-    };
-
-    function updateEntity(entity) {
-        if (entity.path.length) {
-            var dt = (Date.now() / 1000 - t),
-                conn = entity.path[0].connection;
-
-            if (!entity.waypoint) { // Need to give the entity a next destination
-                if (conn && world.connections[conn].center) {
-                    // go through the door, if there is one
-                    if (world.connections[conn].open) {
-                        entity.waypoint = world.connections[conn].center.copy();
-                    } else {  // Looks like a door was closed before our nose!
-                        entity.path = [];
-                        entity.waypoint = entity.position;
-                        return;
-                    }
-                } else {  // no door; rooms are not separated
-                    entity.room = entity.path[0].room;
-                    delete entity.path[0].connection;
-                    if (entity.path.length === 1) {
-                        entity.waypoint = randomOffsetInRoom(world.rooms[entity.room].center,
-                                                             entity.room, 0.2);
-                    } else {
-                        entity.waypoint = world.rooms[entity.room].center.copy();
-                    }
-                    if (entity.isHero) {
-                        d3.select("#room-" + entity.room).classed("waypoint", false);
-                        console.log("hero entered room '" + entity.room + "'!");
-                    } else
-                        console.log("'" + entity.name + "' entered room '" + entity.room + "'!");
-                }
-            } else {  // already have a destination, let's move towards it
-                var direction = entity.waypoint.subtract(entity.position);
-                if (direction.length() < dt * entity.speed) { // we've reached a waypoint
-                    entity.position = entity.waypoint;
-                    if (conn)
-                        delete entity.path[0].connection;
-                    else {
-                        entity.room = entity.path.shift().room;
-                        
-                    }
-                    entity.waypoint = null;
-                } else { // move towards the destination
-                    entity.position = entity.position.add(
-                        direction.multiply(dt * entity.speed / direction.length()));
-                }
-            }
-        }
-        // if we're stationary, do some random walking to make things look more alive
-        if (!entity.path.length && !entity.waypoint &&
-            turn % 10 === 0 && Math.random() < 0.2) {
+    // do some in-place movement to seem more alive
+    function brownianWalkLoop(entity) {
+        if (!entity.waypoint) { // unless we're going somewhere
             entity.position = randomOffsetInRoom(entity.position, entity.room, Math.random() * 0.1);
         }
+        if (entity.health > 0)  // dead monsters don't walk
+            setTimeout(brownianWalkLoop, 1000 + Math.random()*3000, entity);
     }
+
+    // walk from room to room
+    function randomWalkLoop(entity) {
+        var conn = world.getConnectedRooms(entity.room),
+            room = (_.sample(Object.keys(conn))),
+            path = [{room: room, connection: conn[room]}];
+        console.log(entity.name, "randomly walking to", room, "from", entity.room);
+        entity.path = path;
+        followPath(entity, function () {setTimeout(randomWalkLoop, 1000 + Math.random() * 10, entity);});
+    }
+    
+    function fightLoop(entity, period) {
+        if (entity.health > 0) {  // fight until dead
+            var opponents;
+            if (entity.isHero)
+                opponents = _.filter(world.monsters, function (m) {return m.room == entity.room;});
+            else
+                opponents = (entity.room == world.hero.room) ? [world.hero] : [];
+            opponents.forEach(function (o) {
+                console.log("'" + entity.name +"' attacking '" + o.name + "'!");
+                var hit = Math.random() < entity.changeToHit;
+                if (hit) {
+                    o.health -= entity.weaponDamage;
+                    console.log("'" + entity.name +"' hits!");
+                }
+            });
+            setTimeout(fightLoop, period*1000, entity, period);
+        }
+    };
+
+    function healLoop(entity, period) {
+        if (entity.health > 0) {  // not healing dead people
+            entity.health = Math.min(100, entity.health + entity.healing);
+            setTimeout(healLoop, period * 1000, entity, period);
+        }
+    }
+
+    function visibilityLoop(entity, period) {
+        if (entity.health > 0) { // I don't see dead people
+            if (!entity.isHero) {
+                d3.selectAll("#" + entity.name)
+                    .style("opacity", entity.room == world.hero.room || world.rooms[entity.room].camera? 1 : 0);
+            }
+            setTimeout(visibilityLoop, period * 1000, entity, period);
+        }
+    }
+
+    // follow the path
+    function followPath (entity, callback) {
+        if (!entity.waypoint && entity.path.length) {
+            var target = entity.path[0];
+            moveTo(entity, target, function () {followPath(entity);}, 0.2);
+        } else {
+            console.log(entity.name + " reached destination " + entity.room + "!");
+            if (callback) callback();
+        }
+        d3.select("#room-" + entity.room).classed("waypoint", false);
+    };
+
+    // move an entity between two adjacent rooms
+    function moveTo(entity, target, callback, dt, subpath, delta) {
+        if (!subpath) {
+            console.log(target);
+            var conn = world.connections[target.connection];
+            subpath = conn && conn.center ?
+                [world.connections[target.connection].center,
+                 randomOffsetInRoom(world.rooms[target.room].center, target.room, 0.1)] :
+                [randomOffsetInRoom(world.rooms[target.room].center, target.room, 0.1)];
+        }
+        var direction = subpath[0].subtract(entity.position);            
+        if (!delta) {
+            delta = delta || direction.multiply(dt * entity.speed / direction.length());
+        }
+        if (direction.length() > dt * entity.speed) {
+            entity.position = entity.position.add(delta);
+            entity.waypoint = setTimeout(function () {moveTo(entity, target, callback, dt, subpath, delta);},
+                                         dt * 1000);
+        } else {
+            entity.position = subpath.shift();
+            if (subpath.length) {
+                console.log(entity.name, " reached connection", target.connection);
+                entity.room = target.room;
+                entity.waypoint = setTimeout(function () {moveTo(entity, target, callback, dt, subpath);},
+                                             dt * 1000);
+            } else {
+                console.log(entity.name + " reached room", target.room);
+                entity.room = target.room;
+                entity.waypoint = null;
+                entity.path.shift();
+                callback();
+            }
+        }
+    }    
 
     function randomOffsetInRoom(position, room, scale) {
         var offset_dir = Math.PI * 2 * Math.random();  // a random angle
@@ -248,59 +302,33 @@ var world;
                      Math.max(rect.top + 15, position.y + rect.height*scale * Math.sin(offset_dir))));
     }
 
-    // This is the main loop that is run several times per second. It updates
-    // the hero's position... and not much else so far :)
-    var turn = 0;
-    function update() {
-        // update hero
-        updateEntity(world.hero);
-        if (world.hero.health < 100 && turn % 10 == 0) {
-            world.hero.health = Math.min(100, world.hero.health + 0.2);
-            updateHud();
-        }
-        // update each monster
-        world.monsters.forEach(function (monster) {
-            updateEntity(monster);
-            if (turn % 20 == 0) {
-                // randomly walk from room to room
-                if (!monster.path.length && monster.sleepUntil < t) {
-                    var conn = world.getConnectedRooms(monster.room),
-                        room = (_.sample(Object.keys(conn)));
-                    monster.path = [{room: room, connection: conn[room]}];
-                    monster.sleepUntil = t + 5 + 10 * Math.random();
-                }
-                // fight the hero
-                if (monster.room == world.hero.room) {
-                    monster.health -= 20;
-                    world.hero.health -= 5;
-                    console.log("Fight between hero and '" + monster.name + "'!");
-                }
-                // remove if dead
-                if (monster.health <= 0) {
-                    world.monsters = _.without(world.monsters, monster);
-                    console.log("'" + monster.name + "' died!");
-                }
-            }
-        });
-        // spawn new monsters
-        if (world.monsters.length < 3 && turn % 20 == 0 && Math.random() < 0.1) {
-            var new_monster = new Entity({room: _.sample(_.keys(world.rooms))});
+    // spawn new monsters
+    function spawnMonsters (chance) {
+        if (world.monsters.length < 3 && Math.random() < chance) {
+            standard_monster_spec.room = _.sample(_.keys(world.rooms));
+            var new_monster = new Entity(standard_monster_spec);
             world.monsters.push(new_monster);
             console.log("'" + new_monster.name +
                         "' spawned in room '" + new_monster.room + "'!");
         }
-        
-        drawEntities();
-        t = Date.now() / 1000;
-        turn++;
-        setTimeout(update, 100);
     }
-
+    
+    function reapMonsters() {
+        world.monsters.forEach(function (monster) {
+            if (monster.health <= 0) {
+                world.monsters = _.without(world.monsters, monster);
+                console.log("'" + monster.name + "' died!");
+            }
+        });
+    }
+    
+    
     function drawEntities () {
 
         // draw the hero
         var h = world.view.select("g.hero").selectAll("circle.hero")
                 .data([world.hero])
+                .attr("id", function (d) {return d.name;})
                 .attr("cx", function (d) {return d.position.x;})
                 .attr("cy", function (d) {return d.position.y;});
         h.enter().append("circle")
@@ -317,6 +345,7 @@ var world;
                 .attr("cy", function (d) {return d.position.y;});
         m.enter().append("circle")
             .classed("monster", true)
+            .attr("id", function (d) {return d.name;})
             .attr("r", 10)
             .attr("cx", function (d) {return d.position.x;})
             .attr("cy", function (d) {return d.position.y;})
@@ -329,6 +358,20 @@ var world;
             .each("end", function () {d3.select(this).remove();});
     };
 
+    function updateHud() {
+        hud.innerHTML = [
+            "HEALTH: " + Math.round(world.hero.health) + "%"
+        ].join();
+        if (world.hero.health < 20) {
+            hud.className = "critical";
+        } else {
+            if (world.hero.health < 80)
+                hud.className = "hurt";
+            else
+                hud.className = null;
+        }
+    };
+    
     world = new World({
         // The world is defined as a graph, where the nodes correspond to "rooms"
         // and edges correspond to doors/connections, connecting two "rooms".
@@ -343,12 +386,12 @@ var world;
         },
 
         rooms: {
-            "a": {},
-            "b": {},
+            "a": {camera: false},
+            "b": {camera: true},
             "c": {},
-            "d": {},
-            "e": {},
-            "g": {}
+            "d": {camera: true},
+            "e": {camera: true},
+            "g": {camera: false}
         }
 
     });
