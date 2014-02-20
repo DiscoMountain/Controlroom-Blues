@@ -48,7 +48,7 @@ var world;
         updateHud();
 
         t = Date.now() / 1000;
-        setInterval(update, 100);  // start the "main loop"
+        update();  // start the "main loop"
     };
 
     // find the coordinates of the center of something
@@ -132,6 +132,7 @@ var world;
         this.speed = 50;
         this.path = [];
         this.waypoint = null;
+        this.name = Math.random().toString(36).replace(/[^a-z]+/g, '');
 
         this.sleepUntil = 0;
 
@@ -207,6 +208,11 @@ var world;
                     } else {
                         entity.waypoint = world.rooms[entity.room].center.copy();
                     }
+                    if (entity.isHero) {
+                        d3.select("#room-" + entity.room).classed("waypoint", false);
+                        console.log("hero entered room '" + entity.room + "'!");
+                    } else
+                        console.log("'" + entity.name + "' entered room '" + entity.room + "'!");
                 }
             } else {  // already have a destination, let's move towards it
                 var direction = entity.waypoint.subtract(entity.position);
@@ -216,7 +222,7 @@ var world;
                         delete entity.path[0].connection;
                     else {
                         entity.room = entity.path.shift().room;
-                        d3.select("#room-" + entity.room).classed("waypoint", false);
+                        
                     }
                     entity.waypoint = null;
                 } else { // move towards the destination
@@ -226,7 +232,8 @@ var world;
             }
         }
         // if we're stationary, do some random walking to make things look more alive
-        if (!entity.waypoint && turn % 10 === 0 && Math.random() < 0.2) {
+        if (!entity.path.length && !entity.waypoint &&
+            turn % 10 === 0 && Math.random() < 0.2) {
             entity.position = randomOffsetInRoom(entity.position, entity.room, Math.random() * 0.1);
         }
     }
@@ -235,10 +242,10 @@ var world;
         var offset_dir = Math.PI * 2 * Math.random();  // a random angle
         var rect = world.rooms[room].rect;
         return new Vector(
-            Math.min(rect.left + rect.width - 5, 
-                     Math.max(rect.left + 5, position.x + rect.width*scale * Math.cos(offset_dir))),
-            Math.min(rect.top + rect.height - 5, 
-                     Math.max(rect.top + 5, position.y + rect.height*scale * Math.sin(offset_dir))));
+            Math.min(rect.left + rect.width - 15, 
+                     Math.max(rect.left + 15, position.x + rect.width*scale * Math.cos(offset_dir))),
+            Math.min(rect.top + rect.height - 15, 
+                     Math.max(rect.top + 15, position.y + rect.height*scale * Math.sin(offset_dir))));
     }
 
     // This is the main loop that is run several times per second. It updates
@@ -250,12 +257,6 @@ var world;
         if (world.hero.health < 100 && turn % 10 == 0) {
             world.hero.health = Math.min(100, world.hero.health + 0.2);
             updateHud();
-        }
-        // spawn new monsters
-        if (turn % 20 == 0) {  
-            if (Math.random() < 0.1)
-                if (world.monsters.length < 3)
-                    world.monsters.push(new Entity({room: _.sample(_.keys(world.rooms))}));
         }
         // update each monster
         world.monsters.forEach(function (monster) {
@@ -272,16 +273,27 @@ var world;
                 if (monster.room == world.hero.room) {
                     monster.health -= 20;
                     world.hero.health -= 5;
+                    console.log("Fight between hero and '" + monster.name + "'!");
                 }
                 // remove if dead
-                if (monster.health <= 0)
+                if (monster.health <= 0) {
                     world.monsters = _.without(world.monsters, monster);
+                    console.log("'" + monster.name + "' died!");
+                }
             }
         });
+        // spawn new monsters
+        if (world.monsters.length < 3 && turn % 20 == 0 && Math.random() < 0.1) {
+            var new_monster = new Entity({room: _.sample(_.keys(world.rooms))});
+            world.monsters.push(new_monster);
+            console.log("'" + new_monster.name +
+                        "' spawned in room '" + new_monster.room + "'!");
+        }
         
         drawEntities();
         t = Date.now() / 1000;
         turn++;
+        setTimeout(update, 100);
     }
 
     function drawEntities () {
@@ -307,9 +319,14 @@ var world;
             .classed("monster", true)
             .attr("r", 10)
             .attr("cx", function (d) {return d.position.x;})
-            .attr("cy", function (d) {return d.position.y;});
-        m.exit().remove();
-
+            .attr("cy", function (d) {return d.position.y;})
+            .style("opacity", 0)
+            .transition()
+            .style("opacity", 1);
+        m.exit()
+            .transition()
+            .style("opacity", 0)
+            .each("end", function () {d3.select(this).remove();});
     };
 
     world = new World({
