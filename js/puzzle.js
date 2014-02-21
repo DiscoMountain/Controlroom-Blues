@@ -81,10 +81,12 @@ function keyboard(){
 		.text("cancel");
 
 function animate_sequence(){
+	if (hacking == true){return;}
 	for (i=0;i<sequence.length;i++){
+		j = i + 1
 		sampleSVG.select("#id"+sequence[i])
 			.transition()
-				.duration(1000)
+				.duration(j*500)
 				.style("fill", "lightgreen")
 			.transition()
 				.delay(1000)
