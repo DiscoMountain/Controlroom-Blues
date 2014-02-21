@@ -219,6 +219,11 @@ var world;
                 //.attr("r", function (d) {return d.health / 10;})
                 .attr("cx", function (d) {return d.position.x;})
                 .attr("cy", function (d) {return d.position.y;});
+
+        // Fade in/out depending on visibility
+        m.transition().duration(400)
+            .style("opacity", function (d) {return d.isVisible()? 1 : 0;});
+
         m.enter().append("circle")
             .classed("monster", true)
             .attr("id", function (d) {return d.name;})
@@ -227,11 +232,10 @@ var world;
             .attr("cy", function (d) {return d.position.y;})
             .style("opacity", 0)
             .transition()
-            .style("opacity", 1);
+            .style("opacity", 1)
+            .attr("opacity", 0);
         m.exit()
-            .transition()
-            .style("opacity", 0)
-            .each("end", function () {d3.select(this).remove();});
+            .remove();
     };
 
     function updateHud() {

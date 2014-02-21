@@ -77,10 +77,7 @@ circle.monster {
 
 }
 
-
-
-
-path {
+.icon {
     fill: yellow;
     stroke: grey;
 }

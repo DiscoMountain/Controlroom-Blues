@@ -27,13 +27,16 @@ var Entity = {};
         loopUntilDead(heal, this, 5.1);
         if (!this.isHero) {
             randomWalkLoop(this, 2.03);
-            loopUntilDead(updateVisibility, this, 1.1);
         } else
             updateVision(this);
     };
 
     Entity.prototype.setRoom = function (room) {
         this.room = room;
+    };
+
+    Entity.prototype.isVisible = function () {
+        return this.room in world.hero.vision || world.rooms[this.room].camera;
     };
 
     Entity.prototype.updatePath = function (destination) {
@@ -120,11 +123,6 @@ var Entity = {};
         });
     }
     
-    function updateVisibility(entity) {
-        d3.selectAll("#" + entity.name)
-            .style("opacity", (entity.room in world.hero.vision || world.rooms[entity.room].camera)? 1 : 0);
-    }
-
     // follow the path
     function followPath (entity, callback) {
         if (!entity.waypoint && entity.path.length) {
