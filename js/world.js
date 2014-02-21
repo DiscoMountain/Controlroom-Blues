@@ -5,6 +5,30 @@ var world;
     var view = d3.select("#main-svg"), hud = document.getElementById("hud"), t;
 
     var standard_monster_spec = {room: "d", chanceToHit: 0.25, weaponDamage: 3};
+
+    world = new World({
+        // The world is defined as a graph, where the nodes correspond to "rooms"
+        // and edges correspond to doors/connections, connecting two "rooms".
+        connections: {
+            "1": {door: true, open: false},
+            "2": {door: true, open: false, rooms: ["a", "b"]},
+            "3": {open: true, rooms: ["a", "c"]},
+            "4": {open: true, rooms: ["c", "g"]},
+            "5": {door: true, open: false, rooms: ["d", "e"]},
+            "6": {open: true, rooms: ["b", "e"]},
+            "7": {open: true, rooms: ["g", "d"]}
+        },
+
+        rooms: {
+            "a": {camera: false},
+            "b": {camera: true},
+            "c": {},
+            "d": {camera: true},
+            "e": {camera: true},
+            "g": {camera: false}
+        }
+
+    });
     
     // Representation of the game world
     function World(spec) {
@@ -45,6 +69,8 @@ var world;
                     }.bind(this), true);
         }, this);
 
+        this.updateIcons();
+        
         this.hero = new Entity({room: "a", isHero: true, weaponDamage: 20, healing: 1});
         this.monsters = [new Entity(standard_monster_spec)];
 
@@ -55,6 +81,17 @@ var world;
         setInterval(reapMonsters, 2100);
     };
 
+    World.prototype.updateIcons = function () {
+        _.values(this.connections).forEach(function (conn) {
+            if (!conn.open && conn.center) {
+                d3.select("#layer5")
+                    .append("path")
+                    .attr("d", Icons.lock)
+                    .attr("transform", "translate(" + conn.center.x + "," + conn.center.y + ")scale(0.5)");
+            }
+        });
+    };
+    
     // find the coordinates of the center of something
     World.prototype.getCenter = function (type, id) {
         var el = d3.select("#" + type + "-" + id);
@@ -135,6 +172,7 @@ var world;
         this.isHero = spec.isHero;  // hmm 
         this.speed = 50;
         this.path = [];
+        this.vision = {};
         this.waypoint = null;
         this.changeToHit = spec.changeToHit || 0.5;
         this.weaponDamage = spec.weaponDamage || 10;
@@ -148,12 +186,13 @@ var world;
         this.ammo = 100;
         this.morale = 100;
 
-        brownianWalkLoop(this);
-        if (!this.isHero)
-            randomWalkLoop(this);
-        fightLoop(this, 1.01);
-        healLoop(this, 5.1);
-        //visibilityLoop(this, 1);
+        loopUntilDead(brownianWalk, this, 1.5);
+        loopUntilDead(fight, this, 1.01);
+        loopUntilDead(heal, this, 5.1);
+        if (!this.isHero) {
+            randomWalkLoop(this, 2.03);
+            loopUntilDead(updateVisibility, this, 1.1);
+        }
     };
 
     Entity.prototype.setRoom = function (room) {
@@ -187,61 +226,65 @@ var world;
                     .classed("waypoint", true);
             });
         }
-        followPath(this);
+        followPath(this, updateVision);
     };
 
+    function loopUntilDead(f, entity, period) {
+        if (entity.health > 0) {
+            f(entity);
+            setTimeout(loopUntilDead, period * 1000, f, entity, period);
+        }
+    }
+
+    function updateVision (entity) {
+        entity.vision = world.getConnectedRooms(entity.room);
+    }
+        
     // do some in-place movement to seem more alive
-    function brownianWalkLoop(entity) {
+    function brownianWalk(entity) {
         if (!entity.waypoint) { // unless we're going somewhere
             entity.position = randomOffsetInRoom(entity.position, entity.room, Math.random() * 0.1);
         }
-        if (entity.health > 0)  // dead monsters don't walk
-            setTimeout(brownianWalkLoop, 1000 + Math.random()*3000, entity);
     }
 
     // walk from room to room
     function randomWalkLoop(entity) {
-        var conn = world.getConnectedRooms(entity.room),
-            room = (_.sample(Object.keys(conn))),
-            path = [{room: room, connection: conn[room]}];
-        console.log(entity.name, "randomly walking to", room, "from", entity.room);
-        entity.path = path;
-        followPath(entity, function () {setTimeout(randomWalkLoop, 1000 + Math.random() * 10, entity);});
+        if (entity.health > 0) { 
+            var conn = world.getConnectedRooms(entity.room),
+                room = (_.sample(Object.keys(conn))),
+                path = [{room: room, connection: conn[room]}];
+            console.log(entity.name, "randomly walking to", room, "from", entity.room);
+            entity.path = path;
+            followPath(entity, function () {setTimeout(randomWalkLoop, 1000 + Math.random() * 3000, entity);});
+        }
     }
     
-    function fightLoop(entity, period) {
-        if (entity.health > 0) {  // fight until dead
-            var opponents;
-            if (entity.isHero)
-                opponents = _.filter(world.monsters, function (m) {return m.room == entity.room;});
-            else
-                opponents = (entity.room == world.hero.room) ? [world.hero] : [];
-            opponents.forEach(function (o) {
-                console.log("'" + entity.name +"' attacking '" + o.name + "'!");
-                var hit = Math.random() < entity.changeToHit;
-                if (hit) {
+    function fight(entity) {
+        var opponents;
+        if (entity.isHero)
+            opponents = _.filter(world.monsters, function (m) {return m.room == entity.room;});
+        else
+            opponents = (entity.room == world.hero.room) ? [world.hero] : [];
+        opponents.forEach(function (o) {
+            console.log("'" + entity.name +"' attacking '" + o.name + "'!");
+            var hit = Math.random() < entity.changeToHit;
+            if (hit) {
                     o.health -= entity.weaponDamage;
-                    console.log("'" + entity.name +"' hits!");
-                }
-            });
-            setTimeout(fightLoop, period*1000, entity, period);
-        }
+                console.log("'" + entity.name +"' hits!");
+            }
+        });
     };
 
-    function healLoop(entity, period) {
-        if (entity.health > 0) {  // not healing dead people
-            entity.health = Math.min(100, entity.health + entity.healing);
-            setTimeout(healLoop, period * 1000, entity, period);
-        }
+    function heal(entity) {
+        entity.health = Math.min(100, entity.health + entity.healing);
     }
 
-    function visibilityLoop(entity, period) {
-        if (entity.health > 0) { // I don't see dead people
-            if (!entity.isHero) {
-                d3.selectAll("#" + entity.name)
-                    .style("opacity", entity.room == world.hero.room || world.rooms[entity.room].camera? 1 : 0);
-            }
-            setTimeout(visibilityLoop, period * 1000, entity, period);
+    function updateVisibility(entity) {
+        if (entity.room == world.hero.room ||
+            entity.room in world.hero.vision ||
+            world.rooms[entity.room].camera) {
+            d3.selectAll("#" + entity.name)
+                .style("opacity", entity.room == world.hero.room || world.rooms[entity.room].camera? 1 : 0);
         }
     }
 
@@ -249,10 +292,10 @@ var world;
     function followPath (entity, callback) {
         if (!entity.waypoint && entity.path.length) {
             var target = entity.path[0];
-            moveTo(entity, target, function () {followPath(entity);}, 0.2);
+            moveTo(entity, target, function () {followPath(entity, callback);}, 0.2);
         } else {
             console.log(entity.name + " reached destination " + entity.room + "!");
-            if (callback) callback();
+            if (callback) callback(entity);
         }
         d3.select("#room-" + entity.room).classed("waypoint", false);
     };
@@ -322,7 +365,6 @@ var world;
         });
     }
     
-    
     function drawEntities () {
 
         // draw the hero
@@ -371,29 +413,5 @@ var world;
                 hud.className = null;
         }
     };
-    
-    world = new World({
-        // The world is defined as a graph, where the nodes correspond to "rooms"
-        // and edges correspond to doors/connections, connecting two "rooms".
-        connections: {
-            "1": {door: true, open: false},
-            "2": {door: true, open: false, rooms: ["a", "b"]},
-            "3": {open: true, rooms: ["a", "c"]},
-            "4": {open: true, rooms: ["c", "g"]},
-            "7": {open: true, rooms: ["g", "d"]},
-            "5": {door: true, open: false, rooms: ["d", "e"]},
-            "6": {open: true, rooms: ["b", "e"]}
-        },
-
-        rooms: {
-            "a": {camera: false},
-            "b": {camera: true},
-            "c": {},
-            "d": {camera: true},
-            "e": {camera: true},
-            "g": {camera: false}
-        }
-
-    });
 
 })();

@@ -70,3 +70,10 @@ circle.monster {
     /* -webkit-animation-direction: alternate; */
 
 }
+
+
+path {
+    fill: yellow;
+    stroke: black;
+}
+
