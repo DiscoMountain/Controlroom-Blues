@@ -9,10 +9,11 @@
             var door = world.connections[target.id.split("-")[1]];
             if (door.open) {
                 setStatus(target, "CLOSED");
-            } else {
+                door.open = false;
+            } else if (!door.locked) {
                 setStatus(target, "OPEN");
+                door.open = true;
             }
-            door.open = !door.open;
             break;
         }
         return false;
