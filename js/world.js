@@ -84,26 +84,25 @@ var world;
 
     World.prototype.updateIcons = function () {
 
+        var s = d3.select("#layer5").selectAll("path");
+
         // Room cameras
-        d3.select("#layer5").selectAll("path.icon.camera")
-            .data(_.filter(_.values(this.rooms), function (d) {return d.camera;}))
-            .enter()
-            .append("path")
+        var cameras = s.data(_.filter(_.values(this.rooms), function (d) {return d.camera;}));
+        cameras.enter().append("path")
             .classed({icon: true, camera: true})
             .attr("d", Icons.camera)
             .attr("transform", function (d) {
                 return "translate(" + d.rect.left + "," + d.rect.top + ")";});
-
+        cameras.exit().remove();
+        
         // Locked doors
-        d3.select("#layer5").selectAll("path.icon.locked")
-            .data(_.filter(_.values(this.connections), function (d) {return d.locked;}))
-            .enter()
-            .append("path")
+        var locked = s.data(_.filter(_.values(this.connections), function (d) {return d.locked;}));
+        locked.enter().append("path")
             .classed({icon: true, locked: true})
             .attr("d", Icons.locked)
             .attr("transform", function (d) {
                 return "translate(" + (d.center.x - 8) + "," + (d.center.y - 8) + ")scale(0.5)";});
-        
+        locked.exit().remove();
     };
 
     World.prototype.getElement = function (type, id) {
@@ -242,7 +241,5 @@ var world;
         m.exit()
             .remove();
     };
-
-
 
 })();
