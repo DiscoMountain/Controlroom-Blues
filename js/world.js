@@ -83,12 +83,12 @@ var world;
     // Display icons on each room showing what's there
     World.prototype.updateIcons = function () {
 
-        var icon_types = ["camera", "terminal", "puzzle"];
+        var room_icons = ["camera", "terminal", "puzzle"];
         
         function iconPosition (icon, room) {
             room = world.rooms[room];
             var position = new Vector(room.rect.left, room.rect.top);
-            icon_types.some(function (ic) {
+            room_icons.some(function (ic) {
                 if (ic === icon) return true;
                 if (ic in room) position.x += 32;
             }, this);
@@ -97,20 +97,24 @@ var world;
                 
         var s = d3.select("#layer5").selectAll("path");
 
-        icon_types.forEach(function (icon) {
-            var tmp = s.data(_.filter(_.keys(this.rooms), function (d) {return world.rooms[d][icon];}));
+        // Draw the correct icons on each room
+        room_icons.forEach(function (icon) {
+            var tmp = s.data(_.filter(_.keys(this.rooms),
+                                      function (d) {return world.rooms[d][icon];}));
             tmp.enter().append("path")
-                .classed({icon: true})
+                .classed("icon", true)
                 .attr("d", Icons[icon])
                 .attr("transform", function (d) {
                     var pos = iconPosition(icon, d);
                     return "translate(" + pos.x + "," + pos.y + ")";})
+                // here's where to put callbacks for mouseclick
                 .on("click", function (d) {console.log("clicked", icon, d);});
             tmp.exit().remove();
         }, this);
         
-        // Locked doors
-        var locked = s.data(_.filter(_.values(this.connections), function (d) {return d.locked;}));
+        // Locked door icons
+        var locked = s.data(_.filter(_.values(this.connections),
+                                     function (d) {return d.locked;}));
         locked.enter().append("path")
             .classed({icon: true})
             .attr("d", Icons.locked)
