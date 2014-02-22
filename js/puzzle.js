@@ -80,6 +80,8 @@ function keyboard(){
 		.attr("font-size", 10)
 		.text("cancel");
 
+//animates the sequence that needs to be entered to solve puzzle
+
 function animate_sequence(){
 	if (hacking == true){return;}
 	for (i=0;i<sequence.length;i++){
