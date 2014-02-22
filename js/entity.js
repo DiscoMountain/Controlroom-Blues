@@ -1,4 +1,4 @@
-var Entity = {};
+var Entity, Hero, Monster;
 
 (function () {
     // Representation of someone (hero, monster, ...) or something
@@ -6,22 +6,24 @@ var Entity = {};
         this.room = spec.room;
         this.position = spec.position || world.rooms[this.room].center.copy();
         this.isHero = spec.isHero;  // hmm 
-        this.speed = 50;
+        this.speed = spec.speed || 50;
+        this.changeToHit = spec.changeToHit || 0.5;
+        this.weaponDamage = spec.weaponDamage || 10;
+        this.healing = spec.healing || 0;
+        this.name = this.isHero? "Hero" : Math.random().toString(36).replace(/[^a-z]+/g, '');
+
+        this.health = spec.health || 100;
+        this.ammo = spec.ammo || 100;
+        this.morale = spec.morale || 100;
+
         this.path = [];
         this.vision = {};
         this.waypoint = null;
-        this.changeToHit = spec.changeToHit || 0.5;
-        this.weaponDamage = spec.weaponDamage || 10;
-        this.name = this.isHero? "Hero" : Math.random().toString(36).replace(/[^a-z]+/g, '');
 
-        this.healing = spec.healing || 0;
-        
-        this.sleepUntil = 0;
-
-        this.health = 100;
-        this.ammo = 100;
-        this.morale = 100;
-
+        this.start();
+    };
+    
+    Entity.prototype.start = function () {
         loopUntilDead(brownianWalk, this, 1.5);
         loopUntilDead(fight, this, 1.01);
         loopUntilDead(heal, this, 5.1);
@@ -184,5 +186,5 @@ var Entity = {};
             Math.min(rect.top + rect.height - 15, 
                      Math.max(rect.top + 15, position.y + rect.height*scale * Math.sin(offset_dir))));
     }
-    
+
 })();

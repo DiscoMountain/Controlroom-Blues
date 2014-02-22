@@ -75,9 +75,9 @@ var world;
         this.monsters = [new Entity(standard_monster_spec)];
 
         // start some update loops
-        setInterval(drawEntities, 200);
         setInterval(spawnMonsters, 5100, 0.5);
         setInterval(reapMonsters, 2100);
+        setInterval(drawEntities, 200);
     };
 
     // Display icons on each room showing what's there
@@ -254,8 +254,7 @@ var world;
             .attr("cy", function (d) {return d.position.y;})
             .style("opacity", 0)
             .transition()
-            .style("opacity", 1)
-            .attr("opacity", 0);
+            .style("opacity", 1);
         m.exit()
             .remove();
     };
