@@ -32,9 +32,9 @@ var world;
     
     // Representation of the game world
     function World(spec) {
-        console.log("spec", spec);
+
         // actions
-        this.console =  function (s) {console.log("World console: " + s);};
+        this.log =  function (s) {console.log("World console: " + s);};
 
         // data
         this.connections = spec.connections;
@@ -102,7 +102,7 @@ var world;
             .classed({icon: true, locked: true})
             .attr("d", Icons.locked)
             .attr("transform", function (d) {
-                return "translate(" + d.center.x + "," + d.center.y + ")scale(0.5)";});
+                return "translate(" + (d.center.x - 8) + "," + (d.center.y - 8) + ")scale(0.5)";});
         
     };
 
@@ -190,8 +190,8 @@ var world;
             standard_monster_spec.room = _.sample(_.keys(world.rooms));
             var new_monster = new Entity(standard_monster_spec);
             world.monsters.push(new_monster);
-            console.log("'" + new_monster.name +
-                        "' spawned in room '" + new_monster.room + "'!");
+            world.log("'" + new_monster.name +
+                      "' spawned in room '" + new_monster.room + "'!");
         }
     }
     
@@ -199,7 +199,7 @@ var world;
         world.monsters.forEach(function (monster) {
             if (monster.health <= 0) {
                 world.monsters = _.without(world.monsters, monster);
-                console.log("'" + monster.name + "' died!");
+                world.log("'" + monster.name + "' died!");
             }
         });
     }
