@@ -2,7 +2,7 @@ var world;
 
 (function () {
 
-    var view = d3.select("#main-svg"), hud = document.getElementById("hud"), t;
+    var view = d3.select("#main-svg");
 
     var standard_monster_spec = {room: "d", chanceToHit: 0.25, weaponDamage: 3};
 
@@ -50,9 +50,11 @@ var world;
 
         Object.keys(this.connections).forEach(function (c) {
             this.connections[c].center = this.getCenter("door", c);
+            this.connections[c].rect = this.getRect("door", c);
         }, this);
 
         Object.keys(this.rooms).forEach(function (r) {
+            this.rooms[r].el = 
             this.rooms[r].center = this.getCenter("room", r);
             this.rooms[r].rect = this.getRect("room", r);
         }, this);
@@ -76,7 +78,6 @@ var world;
 
         // start some update loops
         setInterval(drawEntities, 200);
-        setInterval(updateHud, 1005);
         setInterval(spawnMonsters, 5100, 0.5);
         setInterval(reapMonsters, 2100);
     };
@@ -93,7 +94,7 @@ var world;
             .attr("transform", function (d) {
                 return "translate(" + d.rect.left + "," + d.rect.top + ")";});
 
-        // Locked door
+        // Locked doors
         d3.select("#layer5").selectAll("path.icon.locked")
             .data(_.filter(_.values(this.connections), function (d) {return d.locked;}))
             .enter()
@@ -104,10 +105,14 @@ var world;
                 return "translate(" + d.center.x + "," + d.center.y + ")scale(0.5)";});
         
     };
+
+    World.prototype.getElement = function (type, id) {
+        return d3.select("#" + type + "-" + id);
+    };
     
     // find the coordinates of the center of something
     World.prototype.getCenter = function (type, id) {
-        var el = d3.select("#" + type + "-" + id);
+        var el = this.getElement(type, id);
         if (!el.empty())
             return new Vector(parseInt(el.attr("x")) + parseInt(el.attr("width")) / 2,
                               parseInt(el.attr("y")) + parseInt(el.attr("height")) / 2);
@@ -116,7 +121,7 @@ var world;
     };
 
     World.prototype.getRect = function (type, id) {
-        var el = d3.select("#" + type + "-" + id);
+        var el = this.getElement(type, id);
         if (!el.empty())
             return{left: parseInt(el.attr("x")), top: parseInt(el.attr("y")),
                    width: parseInt(el.attr("width")), height: parseInt(el.attr("height"))};
@@ -238,18 +243,6 @@ var world;
             .remove();
     };
 
-    function updateHud() {
-        hud.innerHTML = [
-            "HEALTH: " + Math.round(world.hero.health) + "%"
-        ].join();
-        if (world.hero.health < 20) {
-            hud.className = "critical";
-        } else {
-            if (world.hero.health < 80)
-                hud.className = "hurt";
-            else
-                hud.className = null;
-        }
-    };
+
 
 })();

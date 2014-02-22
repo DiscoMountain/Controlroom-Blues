@@ -84,12 +84,24 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
     thumbnail_container.insertBefore(svg_tmp, thumbnail_container.firstChild);
     thumbnail_container.style.height = thumbnail_height;
 
-    // svg.selectAll("rect")
-    //     .style("fill", "red")
-    //     .style("stroke", "blue");
-
+    var hud = document.getElementById("hud");
+    function updateHud() {
+        hud.innerHTML = [
+            "HEALTH: " + Math.round(world.hero.health) + "%"
+        ].join();
+        if (world.hero.health < 20) {
+            hud.className = "critical";
+        } else {
+            if (world.hero.health < 80)
+                hud.className = "hurt";
+            else
+                hud.className = null;
+        }
+    };
+    
     zoom.event(svg);
 
     world.start(importedNode);
+    setInterval(updateHud, 1023);
 
 });
