@@ -1,27 +1,6 @@
 function Vector(x, y) {
   this.x = x;
   this.y = y;
-
-  this.init = function (x, y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  this.set = function (v) {
-    this.x = v.x;
-    this.y = v.y;
-  }
-  
-  this.increase = function (v) {
-    this.x += v.x;
-    this.y += v.y;
-  }
-
-  this.decrease = function (v) {
-    this.x -= v.x;
-    this.y -= v.y;
-  }
-
 }
 
 Vector.prototype.copy = function () {
@@ -41,10 +20,29 @@ Vector.prototype.multiply = function (a) {
 };
 
 Vector.prototype.length = function () {
-  return Math.sqrt(x*x + y*y);
+  return Math.sqrt(this.x*this.x + this.y*this.y);
 };
 
 Vector.prototype.dot = function (v) {
   return this.x * v.x + this.y * v.y;
 };
 
+Vector.prototype.init = function (x, y) {
+    this.x = x;
+    this.y = y;
+};
+
+Vector.prototype.set = function (v) {
+    this.x = v.x;
+    this.y = v.y;
+};
+
+Vector.prototype.increase = function (v) {
+    this.x += v.x;
+    this.y += v.y;
+};
+
+Vector.prototype.decrease = function (v) {
+    this.x -= v.x;
+    this.y -= v.y;
+};
