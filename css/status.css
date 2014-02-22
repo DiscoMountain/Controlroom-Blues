@@ -15,10 +15,9 @@
 }
 
 .visible {
-    stroke: yellow !important;
+    fill: rgb(220,240,256) !important;
     stroke-width: 5 !important;
 }
-
 
 @keyframes glow-green {
     0% { fill: rgb(0,255,0) }

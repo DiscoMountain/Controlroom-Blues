@@ -59,12 +59,17 @@ var Entity = {};
             // the world has changed, check if the path needs updating
         }
         if (this.isHero) {
-            d3.selectAll(".waypoint")
-                .classed("waypoint", false);
-            this.path.forEach(function (r) {
-                d3.select("#room-" + r.room)
-                    .classed("waypoint", true);
-            });
+            var s = d3.select("#layer5").selectAll("path.icon.flag")
+                    .data(this.path);
+            s.enter().append("path")
+                .classed({icon: true, flag: true})
+                .attr("id", function (d) {return "flag-" + d.room;})
+                .attr("d", Icons.flag)
+                .attr("transform", function (d) {
+                    var room = world.rooms[d.room];
+                    return "translate(" + (room.center.x - 15) + "," + (room.center.y - 15) + ")";
+                });
+            s.exit().remove();
         }
         followPath(this, updateVision);
     };
@@ -132,7 +137,8 @@ var Entity = {};
             console.log(entity.name + " reached destination " + entity.room + "!");
             if (callback) callback(entity);
         }
-        d3.select("#room-" + entity.room).classed("waypoint", false);
+        if (entity.isHero)
+            d3.select("#flag-" + entity.room).remove();
     };
 
     // move an entity between two adjacent rooms
