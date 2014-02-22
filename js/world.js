@@ -2,28 +2,26 @@ var world;
 
 (function () {
 
-    var view = d3.select("#main-svg");
-
     var standard_monster_spec = {room: "d", chanceToHit: 0.25, weaponDamage: 3};
 
     world = new World({
-        // The world is defined as a graph, where the nodes correspond to "rooms"
-        // and edges correspond to doors/connections, connecting two "rooms".
+        // The world is defined as a graph, where the nodes correspond to rooms
+        // and edges correspond to doors/connections, connecting two rooms.
         connections: {
-            "1": {door: true, open: false},
+            "1": {door: true, locked: true, open: false},
             "2": {door: true, open: false, rooms: ["a", "b"]},
             "3": {open: true, rooms: ["a", "c"]},
             "4": {open: true, rooms: ["c", "g"]},
-            "5": {door: true, locked: true, open: false, rooms: ["d", "e"]},
+            "5": {door: true, open: false, rooms: ["d", "e"]},
             "6": {open: true, rooms: ["b", "e"]},
             "7": {open: true, rooms: ["g", "d"]}
         },
 
         rooms: {
             "a": {camera: false},
-            "b": {camera: true},
+            "b": {camera: true, puzzle: true},
             "c": {},
-            "d": {camera: true},
+            "d": {terminal: true, camera: true, puzzle: true},
             "e": {camera: true},
             "g": {camera: false}
         }
@@ -82,23 +80,39 @@ var world;
         setInterval(reapMonsters, 2100);
     };
 
+    // Display icons on each room showing what's there
     World.prototype.updateIcons = function () {
 
+        var icon_types = ["camera", "terminal", "puzzle"];
+        
+        function iconPosition (icon, room) {
+            room = world.rooms[room];
+            var position = new Vector(room.rect.left, room.rect.top);
+            icon_types.some(function (ic) {
+                if (ic === icon) return true;
+                if (ic in room) position.x += 32;
+            }, this);
+            return position;
+        };
+                
         var s = d3.select("#layer5").selectAll("path");
 
-        // Room cameras
-        var cameras = s.data(_.filter(_.values(this.rooms), function (d) {return d.camera;}));
-        cameras.enter().append("path")
-            .classed({icon: true, camera: true})
-            .attr("d", Icons.camera)
-            .attr("transform", function (d) {
-                return "translate(" + d.rect.left + "," + d.rect.top + ")";});
-        cameras.exit().remove();
+        icon_types.forEach(function (icon) {
+            var tmp = s.data(_.filter(_.keys(this.rooms), function (d) {return world.rooms[d][icon];}));
+            tmp.enter().append("path")
+                .classed({icon: true})
+                .attr("d", Icons[icon])
+                .attr("transform", function (d) {
+                    var pos = iconPosition(icon, d);
+                    return "translate(" + pos.x + "," + pos.y + ")";})
+                .on("click", function (d) {console.log("clicked", icon, d);});
+            tmp.exit().remove();
+        }, this);
         
         // Locked doors
         var locked = s.data(_.filter(_.values(this.connections), function (d) {return d.locked;}));
         locked.enter().append("path")
-            .classed({icon: true, locked: true})
+            .classed({icon: true})
             .attr("d", Icons.locked)
             .attr("transform", function (d) {
                 return "translate(" + (d.center.x - 8) + "," + (d.center.y - 8) + ")scale(0.5)";});
