@@ -18,16 +18,16 @@ var world;
         },
 
         rooms: {
-            "a": {camera: false},
+            "a": {},
             "b": {camera: true, puzzle: true},
-            "c": {},
+            "c": {ammo: true},
             "d": {terminal: true, camera: true, puzzle: true},
-            "e": {camera: true},
-            "g": {camera: false}
+            "e": {camera: true, firstaid: true},
+            "g": {}
         }
 
     });
-    
+
     // Representation of the game world
     function World(spec) {
 
@@ -52,7 +52,6 @@ var world;
         }, this);
 
         Object.keys(this.rooms).forEach(function (r) {
-            this.rooms[r].el = 
             this.rooms[r].center = this.getCenter("room", r);
             this.rooms[r].rect = this.getRect("room", r);
         }, this);
@@ -70,7 +69,7 @@ var world;
         }, this);
 
         this.updateIcons();
-        
+
         this.hero = new Entity({room: "a", isHero: true, weaponDamage: 20, healing: 1});
         this.monsters = [new Entity(standard_monster_spec)];
 
@@ -83,50 +82,54 @@ var world;
     // Display icons on each room showing what's there
     World.prototype.updateIcons = function () {
 
-        var room_icons = ["camera", "terminal", "puzzle"];
-        
+        console.log("updateIcons", this);
+
+        var room_icons = ["camera", "terminal", "puzzle", "firstaid", "ammo"];
+
         function iconPosition (icon, room) {
             room = world.rooms[room];
             var position = new Vector(room.rect.left, room.rect.top);
             room_icons.some(function (ic) {
                 if (ic === icon) return true;
                 if (ic in room) position.x += 32;
-            }, this);
+            }, world);
             return position;
         };
-                
-        var s = d3.select("#layer5").selectAll("path");
+
+        var s = d3.select("#layer5").selectAll("path.icon");
 
         // Draw the correct icons on each room
         room_icons.forEach(function (icon) {
-            var tmp = s.data(_.filter(_.keys(this.rooms),
-                                      function (d) {return world.rooms[d][icon];}));
+            var tmp = s.filter("."+icon).data(_.filter(_.keys(world.rooms),
+                                                       function (d) {return world.rooms[d][icon];}));
+            tmp.exit().remove();
             tmp.enter().append("path")
                 .classed("icon", true)
+                .classed(icon, true)
                 .attr("d", Icons[icon])
                 .attr("transform", function (d) {
                     var pos = iconPosition(icon, d);
                     return "translate(" + pos.x + "," + pos.y + ")";})
                 // here's where to put callbacks for mouseclick
                 .on("click", function (d) {console.log("clicked", icon, d);});
-            tmp.exit().remove();
-        }, this);
-        
+        }, world);
+
         // Locked door icons
-        var locked = s.data(_.filter(_.values(this.connections),
-                                     function (d) {return d.locked;}));
+        var locked = s.filter(".locked").data(_.filter(_.values(world.connections),
+                                                       function (d) {return d.locked;}));
+        locked.exit().remove();
         locked.enter().append("path")
-            .classed({icon: true})
+            .classed("icon", true)
+            .classed("locked", true)
             .attr("d", Icons.locked)
             .attr("transform", function (d) {
                 return "translate(" + (d.center.x - 8) + "," + (d.center.y - 8) + ")scale(0.5)";});
-        locked.exit().remove();
     };
 
     World.prototype.getElement = function (type, id) {
         return d3.select("#" + type + "-" + id);
     };
-    
+
     // find the coordinates of the center of something
     World.prototype.getCenter = function (type, id) {
         var el = this.getElement(type, id);
@@ -211,7 +214,7 @@ var world;
                       "' spawned in room '" + new_monster.room + "'!");
         }
     }
-    
+
     function reapMonsters() {
         world.monsters.forEach(function (monster) {
             if (monster.health <= 0) {
@@ -220,7 +223,7 @@ var world;
             }
         });
     }
-    
+
     function drawEntities () {
 
         // draw the hero

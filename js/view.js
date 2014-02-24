@@ -87,7 +87,8 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
     var hud = document.getElementById("hud");
     function updateHud() {
         hud.innerHTML = [
-            "HEALTH: " + Math.round(world.hero.health) + "%"
+            ("HEALTH: " + Math.round(world.hero.health) + "% <br>" +
+             "AMMO: " + Math.round(world.hero.ammo) + "%")
         ].join();
         if (world.hero.health < 20) {
             hud.className = "critical";
@@ -98,7 +99,7 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
                 hud.className = null;
         }
     };
-    
+
     zoom.event(svg);
 
     world.start(importedNode);

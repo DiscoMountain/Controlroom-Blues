@@ -5,7 +5,7 @@ var Entity, Hero, Monster;
     Entity = function (spec) {
         this.room = spec.room;
         this.position = spec.position || world.rooms[this.room].center.copy();
-        this.isHero = spec.isHero;  // hmm 
+        this.isHero = spec.isHero;  // hmm
         this.speed = spec.speed || 50;
         this.changeToHit = spec.changeToHit || 0.5;
         this.weaponDamage = spec.weaponDamage || 10;
@@ -22,7 +22,7 @@ var Entity, Hero, Monster;
 
         this.start();
     };
-    
+
     Entity.prototype.start = function () {
         loopUntilDead(brownianWalk, this, 1.5);
         loopUntilDead(fight, this, 1.01);
@@ -35,6 +35,11 @@ var Entity, Hero, Monster;
 
     Entity.prototype.setRoom = function (room) {
         this.room = room;
+        if (this.isHero) {
+            updateVision(this);
+            pickUpStuff(this);
+        }
+
     };
 
     Entity.prototype.isVisible = function () {
@@ -82,7 +87,7 @@ var Entity, Hero, Monster;
             setTimeout(loopUntilDead, period * 1000, f, entity, period);
         }
     }
-        
+
     // do some in-place movement to seem more alive
     function brownianWalk(entity) {
         if (!entity.waypoint) { // unless we're going somewhere
@@ -92,7 +97,7 @@ var Entity, Hero, Monster;
 
     // walk from room to room
     function randomWalkLoop(entity) {
-        if (entity.health > 0) { 
+        if (entity.health > 0) {
             var conn = world.getConnectedRooms(entity.room),
                 room = (_.sample(Object.keys(conn))),
                 path = [{room: room, connection: conn[room]}];
@@ -100,7 +105,7 @@ var Entity, Hero, Monster;
             followPath(entity, function () {setTimeout(randomWalkLoop, 1000 + Math.random() * 10000, entity);});
         }
     }
-    
+
     function fight(entity) {
         var opponents;
         if (entity.isHero)
@@ -129,7 +134,25 @@ var Entity, Hero, Monster;
                 return r in entity.vision;});
         });
     }
-    
+
+    function pickUpStuff(entity) {
+        var room = world.rooms[entity.room];
+        if ("firstaid" in room) {
+            if (entity.health < 100) {
+                console.log("Hero found first-aid!");
+                entity.health = 100;
+                delete room.firstaid;
+                world.updateIcons();
+            }
+        }
+        if ("ammo" in room) {
+            console.log("Hero found ammo!");
+            entity.ammo += 100;
+            delete room.ammo;
+            world.updateIcons();
+        }
+    }
+
     // follow the path
     function followPath (entity, callback) {
         if (!entity.waypoint && entity.path.length) {
@@ -152,7 +175,7 @@ var Entity, Hero, Monster;
                  randomOffsetInRoom(world.rooms[target.room].center, target.room, 0.1)] :
                 [randomOffsetInRoom(world.rooms[target.room].center, target.room, 0.1)];
         }
-        var direction = subpath[0].subtract(entity.position);            
+        var direction = subpath[0].subtract(entity.position);
         if (!delta) {
             delta = delta || direction.multiply(dt * entity.speed / direction.length());
         }
@@ -164,26 +187,26 @@ var Entity, Hero, Monster;
             entity.position = subpath.shift();
             if (subpath.length) {
                 console.log(entity.name, " reached connection", target.connection);
-                entity.room = target.room;
+                entity.setRoom(target.room);
                 entity.waypoint = setTimeout(function () {moveTo(entity, target, callback, dt, subpath);},
                                              dt * 1000);
             } else {
                 console.log(entity.name + " reached room", target.room);
-                entity.room = target.room;
+                entity.setRoom(target.room);
                 entity.waypoint = null;
                 entity.path.shift();
                 callback();
             }
         }
-    }    
+    }
 
     function randomOffsetInRoom(position, room, scale) {
         var offset_dir = Math.PI * 2 * Math.random();  // a random angle
         var rect = world.rooms[room].rect;
         return new Vector(
-            Math.min(rect.left + rect.width - 15, 
+            Math.min(rect.left + rect.width - 15,
                      Math.max(rect.left + 15, position.x + rect.width*scale * Math.cos(offset_dir))),
-            Math.min(rect.top + rect.height - 15, 
+            Math.min(rect.top + rect.height - 15,
                      Math.max(rect.top + 15, position.y + rect.height*scale * Math.sin(offset_dir))));
     }
 
