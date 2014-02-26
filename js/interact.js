@@ -6,6 +6,7 @@
             item_type = target.id.split("-")[0];
         switch (item_type) {
         case "door":
+            keyboard();
             var door = world.connections[target.id.split("-")[1]];
             if (door.open) {
                 setStatus(target, "CLOSED");

@@ -52,3 +52,13 @@ body {
     stroke-width: 3px;
     fill: rgba(255,255,255,0.5);
 }
+
+#puzzlebox {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    top: o;
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+}
