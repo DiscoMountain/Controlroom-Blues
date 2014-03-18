@@ -175,6 +175,7 @@ class StateMachine(object):
 
     def proceed(self):
         "Try to proceed until there are no currently allowed exits."
+        changed = False
         for _ in self:
-            pass
-        return self.finished
+            changed = True
+        return changed

@@ -41,7 +41,7 @@ class HeroTestCase(unittest.TestCase):
             self.assertEqual(self.hero.room, destination)
             self.assertFalse(self.hero._path)
 
-    def test_hero_idle_after_entering_room(self):
+    def test_hero_idle_after_entering_room_if_no_path(self):
         with patch("time.time") as mock_time:
             mock_time.return_value = 0.  # set the time seen by the hero
             destination = Mock()
@@ -51,3 +51,14 @@ class HeroTestCase(unittest.TestCase):
             self.hero.proceed()
             self.assertEqual(self.hero.state, "IDLE")
             self.assertEqual(self.hero.room, destination)
+
+    def test_hero_fights_monsters_when_idle(self):
+        with patch("random.random") as mock_random:
+            MONSTER_HEALTH = 10
+            monster = Monster("test_monster", self.level, self.room,
+                              health=MONSTER_HEALTH)
+            mock_random.return_value = 0.1  # < chance_to_hit => always hit!
+            self.level.get_entities.return_value = [monster]
+            self.hero.proceed()
+            self.assertEqual(self.hero.state, "FIGHTING")
+            self.assertEqual(monster.health, MONSTER_HEALTH - self.hero.weapon_damage)

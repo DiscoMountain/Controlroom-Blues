@@ -1,6 +1,6 @@
 import unittest
 
-from level import Level, Room, Door, Connection
+from level import Level, Room, Connection
 
 
 ROOM_A = Room("A", [])
@@ -9,10 +9,10 @@ ROOM_C = Room("C", [])
 ROOM_D = Room("D", [])
 ROOM_E = Room("E", [])
 
-DOOR_1 = Door("1", opened=True, rooms=[ROOM_A, ROOM_B])
-DOOR_2 = Door("2", opened=True, rooms=[ROOM_B, ROOM_C])
-DOOR_3 = Door("3", opened=True, rooms=[ROOM_A, ROOM_C])
-DOOR_4 = Door("4", opened=True, rooms=[ROOM_A, ROOM_D])
+DOOR_1 = Connection("1", opened=True, rooms=[ROOM_A, ROOM_B])
+DOOR_2 = Connection("2", opened=True, rooms=[ROOM_B, ROOM_C])
+DOOR_3 = Connection("3", opened=True, rooms=[ROOM_A, ROOM_C])
+DOOR_4 = Connection("4", opened=True, rooms=[ROOM_A, ROOM_D])
 
 
 class LevelTestCase(unittest.TestCase):

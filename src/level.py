@@ -1,11 +1,14 @@
 from collections import OrderedDict
+from copy import deepcopy
 import uuid
+
+from entity import Entity
 
 
 class Room(object):
-    def __init__(self, _id=None, items=set()):
-        self._id = _id or uuid.uuid4()
-        self.items = items
+    def __init__(self, _id=None, items=None):
+        self._id = _id if _id else uuid.uuid4()
+        self.items = items if items else []
 
     def __repr__(self):
         return "Room: %s" % self._id
@@ -13,24 +16,17 @@ class Room(object):
     def __contains__(self, item):
         return item in self.items
 
+    def to_dict(self):
+        return dict(items=self.items)
+
 
 class Connection(object):
-    def __init__(self, _id=None, rooms=set()):
-        self._id = _id or uuid.uuid4()
-        self.rooms = set(rooms)
-
-    def __repr__(self):
-        return "Connection: %s" % self._id
-
-    def __nonzero__(self):
-        return True
-
-
-class Door(Connection):
-    def __init__(self, _id=None, opened=False, locked=False, *args, **kwargs):
-        Connection.__init__(self, *args, **kwargs)
+    def __init__(self, _id=None, door=False, opened=False, locked=False, rooms=None):
+        self._id = _id if _id else uuid.uuid4()
+        self.door = door
         self.opened = opened
         self.locked = locked
+        self.rooms = set(rooms) if rooms else []
 
     def __repr__(self):
         return "Door: %s" % self._id
@@ -38,23 +34,30 @@ class Door(Connection):
     def __nonzero__(self):
         return self.opened
 
+    def to_dict(self):
+        return dict(rooms=list(self.rooms), door=self.door, opened=self.opened, locked=self.locked)
+
 
 class Level(object):
 
-    def __init__(self, _id=None, rooms=None, connections=None, entities=None):
+    def __init__(self, _id=None, rooms=None, connections=None):
         self._id = _id or uuid.uuid4()
         self.rooms = {room._id: room for room in (rooms if rooms else [])}
         self.connections = {conn._id: conn for conn in (connections if connections else [])}
-        self.entities = entities if entities else set()
+        self.entities = set()
+
+    def add_entities(self, data):
+        for d in data:
+            self.entities.add(Entity.from_dict(self, d))
 
     def get_connected_rooms(self, room):
         if isinstance(room, str):
             room = self.rooms[room]
-        connected = set()
+        connected = []
         for conn in self.connections.values():
-            if conn and room in conn.rooms:
-                conn_room = (conn.rooms - set([room])).pop()
-                connected.add((conn_room, conn))
+            if room._id in conn.rooms:
+                conn_room = (conn.rooms - set([room._id])).pop()
+                connected.append((self.rooms[conn_room], conn))
         return connected
 
     def get_shortest_path(self, room1, room2):
@@ -84,3 +87,38 @@ class Level(object):
                     queue[room._id] = totdist
             i += 1
         return None
+
+    def update_entities(self):
+        """Go through all entities and check if they change state, etc"""
+        changed = [e for e in self.entities if e.update()]
+        self.reap_entities()
+        return True
+
+    def reap_entities(self):
+        for entity in list(self.entities):
+            if entity.state == "DEAD":
+                self.entities.remove(entity)
+
+    def get_entities(self, room):
+        return [e for e in self.entities if e.room == room]
+
+    def to_dict(self):
+        d = {}
+        d["rooms"] = dict((_id, room.to_dict())
+                          for _id, room in self.rooms.items())
+        d["connections"] = dict((_id, conn.to_dict())
+                                for _id, conn in self.connections.items())
+        d["entities"] = dict((ent._id, ent.to_dict())
+                             for ent in self.entities)
+        return d
+
+    @classmethod
+    def from_dict(cls, data):
+        _id = data["_id"]
+        rooms = [Room(_id, room.get("items", []))
+                 for _id, room in data["rooms"].items()]
+        connections = [Connection(_id, rooms=conn.get("rooms", []))
+                       for _id, conn in data["connections"].items()]
+        level = cls(_id, rooms, connections)
+        level.add_entities(deepcopy(data["entities"]))
+        return level
