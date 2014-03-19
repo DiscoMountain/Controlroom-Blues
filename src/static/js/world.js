@@ -26,6 +26,7 @@ var world;
             } else {
                 // We got a patch of changes, let's apply it
                 jsonpatch.apply(this, data.patch);
+                updateHud();  // TODO: be more intelligent about this
             }
         };
 
@@ -65,8 +66,6 @@ var world;
         this.updateIcons();
 
         setInterval(drawEntities, 200);
-        var hud = document.getElementById("hud");
-        var hud_interval = setInterval(updateHud, 1023, hud, this.getHero());
     };
 
     // Display icons on each room showing what's there
@@ -143,8 +142,9 @@ var world;
             return null;
     };
 
-    function updateHud(hud, hero) {
-        hero = world.getHero();
+    function updateHud() {
+        var hud = document.getElementById("hud"),
+            hero = world.getHero();
         if (hero) {
             hud.innerHTML = [
                 ("HEALTH: " + Math.round(hero.health) + "% <br>" +
