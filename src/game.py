@@ -8,6 +8,12 @@ from jsonpatch import JsonPatch
 from level import Level
 
 
+def sse_json(data):
+    json_str = json.dumps(data)
+
+
+
+
 class Game(object):
 
     def __init__(self, _id=None, data=None):
@@ -27,9 +33,13 @@ class Game(object):
                 self._queue.put(res)
 
     def listen(self):
-        while self._running:
-            data = self._queue.get()
-            yield "data: %s\n\n" % json.dumps(data)
+        try:
+            while self._running:
+                data = self._queue.get()
+                yield "data: %s\n\n" % json.dumps(data)
+        except GeneratorExit:
+            print "A listener exite"
+            pass
 
     def stop(self):
         self._running = False
@@ -38,9 +48,9 @@ class Game(object):
         result = self._update()
         if result:
             if isinstance(result, JsonPatch):
-                return str(dict(patch=list(result)))
+                return dict(patch=list(result))
             elif isinstance(result, dict):
-                return str(dict(data=result))
+                return dict(data=result)
 
     def _update(self):
         changes = self.level.update_entities()

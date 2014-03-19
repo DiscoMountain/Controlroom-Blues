@@ -1,4 +1,6 @@
-d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
+// This file concerns the view of the map; drawing the SVG, zooming, panning, so on
+
+d3.xml("static/graphics/map.svg", "image/svg+xml", function(xml) {
 
     var importedNode = document.importNode(xml.documentElement, true),
         container = document.getElementById("view"),
@@ -84,25 +86,6 @@ d3.xml("graphics/map.svg", "image/svg+xml", function(xml) {
     thumbnail_container.insertBefore(svg_tmp, thumbnail_container.firstChild);
     thumbnail_container.style.height = thumbnail_height;
 
-    var hud = document.getElementById("hud");
-    function updateHud() {
-        hud.innerHTML = [
-            ("HEALTH: " + Math.round(world.hero.health) + "% <br>" +
-             "AMMO: " + Math.round(world.hero.ammo) + "%")
-        ].join();
-        if (world.hero.health < 20) {
-            hud.className = "critical";
-        } else {
-            if (world.hero.health < 80)
-                hud.className = "hurt";
-            else
-                hud.className = null;
-        }
-    };
-
     zoom.event(svg);
-
-    world.start(importedNode);
-    setInterval(updateHud, 1023);
 
 });

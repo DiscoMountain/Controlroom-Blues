@@ -108,8 +108,7 @@ class Level(object):
                           for _id, room in self.rooms.items())
         d["connections"] = dict((_id, conn.to_dict())
                                 for _id, conn in self.connections.items())
-        d["entities"] = dict((ent._id, ent.to_dict())
-                             for ent in self.entities)
+        d["entities"] = [ent.to_dict() for ent in self.entities]
         return d
 
     @classmethod

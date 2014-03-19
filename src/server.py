@@ -54,7 +54,8 @@ def listen_game():
 
 @app.route('/')
 def get_client():
-    return render_template('test_client.html')
+    #return render_template('test_client.html')
+    return render_template('client.html')
 
 
 @werkzeug.serving.run_with_reloader
