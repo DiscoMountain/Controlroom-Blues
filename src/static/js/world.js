@@ -28,12 +28,14 @@ window.addEventListener("load", function () {
                 // We got a patch of changes, let's apply it
                 jsonpatch.apply(this, data.patch);
                 data.patch.forEach(function(p) {
-                    var path = /(\w+)\/(\d+)\/(\w+)/.exec(p.path);
-                    if (path[1] == "connections") {
+                    // Trying to be a bit intelligent and only update stuff
+                    // that has changed.
+                    var path = /(\w+)\/(\d+)\/(\w+)/.exec(p.path);  // regex matching
+                    if (path[1] == "connections")  // a door has been changed
                         view.toggle("door-" + path[2], p.value);
-                    }
-                    if (path[1] == "entities" && path[3] == "health")
-                        updateHud();  // TODO: be more intelligent about this
+                    if (path[1] == "entities" && (path[3] == "health" || path[3] == "ammo") &&
+                        this.entities[path[2]].is_hero)  // our hero's stats changed
+                        updateHud();
 
                 }, this);
             }
@@ -102,7 +104,8 @@ window.addEventListener("load", function () {
         }, this);
 
         this.updateIcons();
-        setInterval(drawEntities, 200);
+        setInterval(drawEntities, 1000);
+        updateHud();
     };
 
     // Display icons on each room showing what's there
@@ -204,20 +207,20 @@ window.addEventListener("load", function () {
         var m = world.view.select("g.monsters").selectAll("circle.monster")
                 .data(world.entities, function (e) {return e._id;});
 
-        m.transition()
+        m.transition().duration(1000)
             .attr("cx", function (d) {return world.rooms[d.room].center.x;})
             .attr("cy", function (d) {return world.rooms[d.room].center.y;});
 
         m.enter().append("circle")
             .classed("monster", true)
-            .classed("hero", function (d) {return d.is_hero})
+            .classed("hero", function (d) {return d.is_hero;})
             .attr("id", function (d) {return d.name;})
             .attr("r", 10)
             .attr("cx", function (d) {return world.rooms[d.room].center.x;})
-            .attr("cy", function (d) {return world.rooms[d.room].center.y;});
-            // .style("opacity", 0)
-            // .transition()
-            // .style("opacity", 1);
+            .attr("cy", function (d) {return world.rooms[d.room].center.y;})
+            .style("opacity", 0)
+            .transition()
+            .style("opacity", 1);
 
         m.exit()
             .transition()
