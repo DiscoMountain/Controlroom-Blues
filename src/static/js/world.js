@@ -15,6 +15,8 @@ window.addEventListener("load", function () {
 
         // Handle data updates from the server
         function update (event) {
+            if (!event.data)
+                return;
             var data = JSON.parse(event.data);  // decode JSON
             console.log(data);
             if ("data" in data) {
@@ -31,12 +33,14 @@ window.addEventListener("load", function () {
                     // Trying to be a bit intelligent and only update stuff
                     // that has changed.
                     var path = /(\w+)\/(\d+)\/(\w+)/.exec(p.path);  // regex matching
-                    if (path[1] == "connections")  // a door has been changed
-                        view.toggle("door-" + path[2], p.value);
-                    if (path[1] == "entities" && (path[3] == "health" || path[3] == "ammo") &&
-                        this.entities[path[2]].is_hero)  // our hero's stats changed
-                        updateHud();
-
+                    if (path) {
+                        var main = path[1], id = path[2], sub = path[3];
+                        if (main == "connections")  // a door has been changed
+                            view.toggle("door-" + id, p.value);
+                        if (main == "entities" && (sub == "health" || sub == "ammo") &&
+                            this.entities[parseInt(id)].is_hero)  // our hero's stats changed
+                            updateHud();
+                    }
                 }, this);
             }
         };
