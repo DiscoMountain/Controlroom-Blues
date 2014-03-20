@@ -1,6 +1,6 @@
 var world;
 
-(function () {
+window.addEventListener("load", function () {
 
     world = new World();
     console.log("Wworld defined");
@@ -22,30 +22,42 @@ var world;
                 this.connections = data.data.connections;
                 this.rooms = data.data.rooms;
                 this.entities = data.data.entities;
-
-                this.start();  // get things rolling
+                if (!this.started)
+                    this.start();  // get things rolling
             } else {
                 // We got a patch of changes, let's apply it
                 jsonpatch.apply(this, data.patch);
-                updateHud();  // TODO: be more intelligent about this
+                data.patch.forEach(function(p) {
+                    var path = /(\w+)\/(\d+)\/(\w+)/.exec(p.path);
+                    if (path[1] == "connections") {
+                        view.toggle("door-" + path[2], p.value);
+                    }
+                    if (path[1] == "entities" && path[3] == "health")
+                        updateHud();  // TODO: be more intelligent about this
+
+                }, this);
             }
         };
 
-        // Subscribe to server events (SSE)
-        this.sse_stream = new EventSource("/listen_game/1");
+        // Figure out the game-id to use
+        this.game_id = parseInt(document.getElementById("game-id").textContent);
+
+        // Subscribe to server events (SSE) for the game
+        this.sse_stream = new EventSource("/listen_game/" + this.game_id);
         this.sse_stream.addEventListener("message", update.bind(this));
     }
 
-
     // start the world
     World.prototype.start = function () {
-        view("static/graphics/map.svg");  // get the map
+        console.log("start");
+        this.started = true;
+        view.load("static/graphics/map.svg");  // get the map
     };
 
     // "activate" the map (needs to be called after the svg is loaded)
-    World.prototype.connect_map = function (view) {
+    World.prototype.connect_map = function (mapNode) {
 
-        this.view = d3.select(view);
+        this.view = d3.select(mapNode);
 
         Object.keys(this.connections).forEach(function (c) {
             this.connections[c].center = this.getCenter("door", c);
@@ -67,6 +79,26 @@ var world;
                             this.hero.updatePath(room);
                         }
                     }.bind(this), true);
+        }, this);
+
+        Object.keys(this.connections).forEach(function (conn, i) {
+            if (this.connections[conn].door) {
+                // Initialize door position
+                if (this.connections[conn].opened)
+                    view.toggle("door-" + conn, true);
+
+                // setup click listener
+                var el = this.view.select("#door-" + conn)
+                        .on("click", function () {
+                            if (!world.preventClick) {
+                                console.log("clicked door", conn);
+                                var success = function (data) {
+                                    console.log(data);
+                                };
+                                d3.json(this.game_id + "/door/" + conn + "/toggle", success);
+                            }
+                        }.bind(this), true);
+            }
         }, this);
 
         this.updateIcons();
@@ -194,4 +226,4 @@ var world;
 
     };
 
-})();
+});

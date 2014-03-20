@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+from copy import deepcopy
 
 import gevent
 import gevent.monkey
@@ -8,7 +9,7 @@ from gevent.pywsgi import WSGIServer
 gevent.monkey.patch_all()
 
 import werkzeug.serving
-from flask import Flask, request, Response, render_template
+from flask import Flask, request, Response, render_template, jsonify
 
 from game import Game
 
@@ -49,18 +50,25 @@ games = {}
 @app.route('/listen_game/<int:game_id>', methods = ['GET'])
 def listen_game(game_id):
     if game_id in games:
-        game = games[game_id]
-    else:
-        game = Game(data=game_data)
+        return Response(games[game_id].listen(),
+                        mimetype='text/event-stream')
+
+
+@app.route('/<int:game_id>')
+def get_client(game_id):
+    if game_id not in games:
+        game = Game(data=deepcopy(game_data))
         games[game_id] = game
-    return Response(game.listen(),
-                    mimetype='text/event-stream')
-
-
-@app.route('/')
-def get_client():
     #return render_template('test_client.html')
-    return render_template('client.html')
+    return render_template('client.html', game_id=game_id)
+
+
+@app.route('/<int:game_id>/door/<int:door_id>/toggle')
+def toggle_door(game_id, door_id):
+    if game_id in games:
+        result = games[game_id].level.toggle_door(str(door_id))
+        return jsonify(result=result)
+    return False
 
 
 @werkzeug.serving.run_with_reloader

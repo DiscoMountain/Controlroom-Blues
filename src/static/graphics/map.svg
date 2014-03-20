@@ -163,7 +163,6 @@
          height="20"
          x="220"
          y="290"
-         onclick="world.toggle(evt)"
          inkscape:label="#rect3881">
         <animateMotion
            class="OPEN"
@@ -190,7 +189,6 @@
          height="10"
          x="530"
          y="180"
-         onclick="world.toggle(evt)"
          inkscape:label="#rect2996">
         <animateMotion
            class="OPEN"
@@ -217,7 +215,6 @@
          height="20"
          x="220"
          y="80"
-         onclick="world.toggle(evt)"
          inkscape:label="#rect3881">
         <animateMotion
            class="OPEN"

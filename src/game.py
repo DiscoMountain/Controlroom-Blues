@@ -48,9 +48,9 @@ class Game(object):
         "Add a listener"
         if not self.queues:  # we're the first listener; start the game
             gevent.spawn(self.start)
-        yield "data: %s\n\n" % json.dumps({"data": self.level.to_dict()})
         queue = Queue()
         self.queues.add(queue)  # add a listener queue
+        queue.put({"data": self.level.to_dict()})
         try:
             while self._running:
                 data = queue.get()
@@ -78,4 +78,4 @@ class Game(object):
                     return patch
             else:
                 self._cache = data
-                return data
+                #return data

@@ -21,7 +21,7 @@ class Room(object):
 
 
 class Connection(object):
-    def __init__(self, _id=None, door=False, opened=False, locked=False, rooms=None):
+    def __init__(self, _id=None, door=False, opened=True, locked=False, rooms=None):
         self._id = _id if _id else uuid.uuid4()
         self.door = door
         self.opened = opened
@@ -55,7 +55,7 @@ class Level(object):
             room = self.rooms[room]
         connected = []
         for conn in self.connections.values():
-            if room._id in conn.rooms:
+            if conn.opened and room._id in conn.rooms:
                 conn_room = (conn.rooms - set([room._id])).pop()
                 connected.append((self.rooms[conn_room], conn))
         return connected
@@ -99,6 +99,13 @@ class Level(object):
             if entity.state == "DEAD":
                 self.entities.remove(entity)
 
+    def toggle_door(self, door_id):
+        if self.connections[door_id].locked:
+            return False
+        else:
+            self.connections[door_id].opened = not self.connections[door_id].opened
+            return True
+
     def get_entities(self, room):
         return [e for e in self.entities if e.room == room]
 
@@ -116,7 +123,7 @@ class Level(object):
         _id = data["_id"]
         rooms = [Room(_id, room.get("items", []))
                  for _id, room in data["rooms"].items()]
-        connections = [Connection(_id, rooms=conn.get("rooms", []))
+        connections = [Connection(_id, door=conn.get("door"), rooms=conn.get("rooms", []))
                        for _id, conn in data["connections"].items()]
         level = cls(_id, rooms, connections)
         level.add_entities(deepcopy(data["entities"]))

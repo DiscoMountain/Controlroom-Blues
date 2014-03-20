@@ -1,6 +1,6 @@
 // This file concerns the view of the map; drawing the SVG, zooming, panning, so on
 
-var view;
+var view = {};
 
 (function () {
 
@@ -97,8 +97,40 @@ var view;
     };
 
 
-    view = function (map_url) {
+    view.load = function (map_url) {
         d3.xml(map_url, "image/svg+xml", process_map);
+    };
+
+
+    view.toggle = function (node_id, open) {
+        var item_type = node_id.split("-")[0],
+            target = document.getElementById(node_id);
+        console.log("toggle door", node_id, open);
+        switch (item_type) {
+        case "door":
+            if (open) {
+                setStatus(target, "OPEN");
+            } else {
+                setStatus(target, "CLOSED");
+            }
+            break;
+        }
+        return false;
+    };
+
+    // Change the status (class) of an element
+    function setStatus (element, status) {
+        console.log("id: " + element.getAttribute("id"));
+        // TODO: the time it takes to trigger a change should be variable
+        setTimeout(function () {element.setAttribute("class", "status-" + status);}, 1000);
+        runAnim(element, status);
+    };
+
+    // Find any animations of a given type and run them
+    function runAnim (element, animName) {
+        var anim = Array.prototype.slice.call(element.querySelectorAll(
+            "animateMotion." + animName));
+        anim.forEach(function (a) {console.log(a); a.beginElement();});
     };
 
 
