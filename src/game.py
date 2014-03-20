@@ -18,7 +18,7 @@ class Game(object):
         self.level = Level.from_dict(data) if data else None
 
         self._lock = BoundedSemaphore()
-        self._main = None    # will hold a reference to the main loop
+        self._main = None    # will hold a reference to the main greenlet
         self._cache = None   # previous game state is kept for detecting changes
         self.queues = set()  # each client gets a queue where change events are put
 
@@ -49,15 +49,20 @@ class Game(object):
         self.queues.add(queue)  # add a listener queue
         queue.put({"data": self.level.to_dict()})  # client needs game data to start
         with self._lock:
-            if not self._main:
+            if not self.is_running:
                 self._main = gevent.spawn(self.start)  # start the game
         try:
-            while self._main:
+            # client listener loop
+            while self.is_running:
                 data = queue.get()  # wait for updates
                 yield "data: %s\n\n" % json.dumps(data)
         except GeneratorExit:
-            print "A listener exited game %s!" % self._id
+            print "A listener left game %s!" % self._id
             self.queues.remove(queue)
+
+    @property
+    def is_running(self):
+        return self._main
 
     def _loop(self):
         "Do updates and check if anything changed."
