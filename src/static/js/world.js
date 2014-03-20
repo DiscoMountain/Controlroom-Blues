@@ -3,6 +3,7 @@ var world;
 (function () {
 
     world = new World();
+    console.log("Wworld defined");
 
     // Representation of the game world
     function World() {
@@ -31,15 +32,20 @@ var world;
         };
 
         // Subscribe to server events (SSE)
-        this.sse_stream = new EventSource("/listen_game");
+        this.sse_stream = new EventSource("/listen_game/1");
         this.sse_stream.addEventListener("message", update.bind(this));
     }
 
 
-    // start the world (needs to be called after the svg is loaded)
+    // start the world
     World.prototype.start = function () {
+        view("static/graphics/map.svg");  // get the map
+    };
 
-        this.view = d3.select("#main-svg");
+    // "activate" the map (needs to be called after the svg is loaded)
+    World.prototype.connect_map = function (view) {
+
+        this.view = d3.select(view);
 
         Object.keys(this.connections).forEach(function (c) {
             this.connections[c].center = this.getCenter("door", c);
@@ -64,7 +70,6 @@ var world;
         }, this);
 
         this.updateIcons();
-
         setInterval(drawEntities, 200);
     };
 
@@ -177,10 +182,10 @@ var world;
             .attr("id", function (d) {return d.name;})
             .attr("r", 10)
             .attr("cx", function (d) {return world.rooms[d.room].center.x;})
-            .attr("cy", function (d) {return world.rooms[d.room].center.y;})
-            .style("opacity", 0)
-            .transition()
-            .style("opacity", 1);
+            .attr("cy", function (d) {return world.rooms[d.room].center.y;});
+            // .style("opacity", 0)
+            // .transition()
+            // .style("opacity", 1);
 
         m.exit()
             .transition()

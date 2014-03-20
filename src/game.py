@@ -23,26 +23,41 @@ class Game(object):
         self._cache = None
         self._running = True
 
-        self._queue = Queue()
+        self.queues = set()
 
     def start(self, period=1.0):
+        "Start running the game"
         while self._running:
             gevent.sleep(period)
             res = self._loop()
-            if res:
-                self._queue.put(res)
-
-    def listen(self):
-        try:
-            while self._running:
-                data = self._queue.get()
-                yield "data: %s\n\n" % json.dumps(data)
-        except GeneratorExit:
-            print "A listener exite"
-            pass
+            if not self.queues:
+                self.stop()
+            elif res:
+                self.broadcast(res)
 
     def stop(self):
+        "Stop running the game"
         self._running = False
+
+    def broadcast(self, event):
+        "Send event data to all listeners"
+        for queue in self.queues:
+            queue.put(event)
+
+    def listen(self):
+        "Add a listener"
+        if not self.queues:  # we're the first listener; start the game
+            gevent.spawn(self.start)
+        yield "data: %s\n\n" % json.dumps({"data": self.level.to_dict()})
+        queue = Queue()
+        self.queues.add(queue)  # add a listener queue
+        try:
+            while self._running:
+                data = queue.get()
+                yield "data: %s\n\n" % json.dumps(data)
+        except GeneratorExit:
+            print "A listener exited!"
+            self.queues.remove(queue)
 
     def _loop(self):
         result = self._update()

@@ -43,11 +43,16 @@ game_data = {
     ]
 }
 
+games = {}
 
-@app.route('/listen_game')
-def listen_game():
-    game = Game(data=game_data)
-    gevent.spawn(game.start)
+
+@app.route('/listen_game/<int:game_id>', methods = ['GET'])
+def listen_game(game_id):
+    if game_id in games:
+        game = games[game_id]
+    else:
+        game = Game(data=game_data)
+        games[game_id] = game
     return Response(game.listen(),
                     mimetype='text/event-stream')
 
