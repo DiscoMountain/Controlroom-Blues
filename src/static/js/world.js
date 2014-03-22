@@ -207,6 +207,10 @@ window.addEventListener("load", function () {
                 else
                     hud.className = null;
             }
+            d3.select("#hud")
+                .style("background-color", "white", "important")
+                .transition()
+                .style("background-color", "rgba(0,0,0,0.5)");
         }
     };
 
