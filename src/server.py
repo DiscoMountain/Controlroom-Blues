@@ -63,12 +63,18 @@ def get_client(game_id):
     return render_template('client.html', game_id=game_id)
 
 
-@app.route('/<int:game_id>/door/<int:door_id>/toggle')
+@app.route('/<int:game_id>/door/<door_id>/toggle')
 def toggle_door(game_id, door_id):
     if game_id in games:
-        result = games[game_id].level.toggle_door(str(door_id))
+        result = games[game_id].level.toggle_door(door_id)
         return jsonify(result=result)
     return False
+
+@app.route('/<int:game_id>/entity/<entity_id>/move/<room_id>')
+def move_hero(room_id):
+    if game_id in games:
+        result = games[game_id].level.get_entity(entity_id)
+
 
 
 @werkzeug.serving.run_with_reloader

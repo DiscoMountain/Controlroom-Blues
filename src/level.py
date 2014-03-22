@@ -56,11 +56,11 @@ class Level(object):
         self._id = _id or uuid.uuid4()
         self.rooms = {room._id: room for room in (rooms if rooms else [])}
         self.connections = {conn._id: conn for conn in (connections if connections else [])}
-        self.entities = set()
+        self.entities = {}
 
     def add_entities(self, data):
         for d in data:
-            self.entities.add(Entity.from_dict(self, d))
+            self.entities[d["_id"]] = Entity.from_dict(self, d)
 
     def get_connected_rooms(self, room):
         "Find out which rooms are accessible from a room, and how."
@@ -103,15 +103,15 @@ class Level(object):
 
     def update_entities(self):
         "Go through all entities and check if they change state, etc."
-        changed = [e for e in self.entities if e.update()]
+        changed = [e for e in self.entities.values() if e.update()]
         self.reap_entities()
         return True
 
     def reap_entities(self):
         "Remove dead entities."
-        for entity in list(self.entities):
+        for _id, entity in self.entities.items():
             if entity.state == "DEAD":
-                self.entities.remove(entity)
+                del self.entities[_id]
 
     def toggle_door(self, door_id):
         "Open a door if closed (and unlocked), and vice versa."
@@ -125,7 +125,7 @@ class Level(object):
 
     def get_entities(self, room):
         "Return the list of entities occupying a room."
-        return [e for e in self.entities if e.room == room]
+        return [e for e in self.entities.values() if e.room == room]
 
     def to_dict(self):
         d = {}
@@ -133,7 +133,8 @@ class Level(object):
                           for _id, room in self.rooms.items())
         d["connections"] = dict((_id, conn.to_dict())
                                 for _id, conn in self.connections.items())
-        d["entities"] = [ent.to_dict() for ent in self.entities]
+        d["entities"] = dict((_id, ent.to_dict())
+                             for _id, ent in self.entities.items())
         return d
 
     @classmethod

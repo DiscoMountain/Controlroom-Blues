@@ -32,13 +32,13 @@ window.addEventListener("load", function () {
                 data.patch.forEach(function(p) {
                     // Trying to be a bit intelligent and only update stuff
                     // that has changed.
-                    var path = /(\w+)\/(\d+)\/(\w+)/.exec(p.path);  // regex matching
+                    var path = /(\w+)\/(\w+)\/(\w+)/.exec(p.path);  // regex matching
                     if (path) {
                         var main = path[1], id = path[2], sub = path[3];
                         if (main == "connections")  // a door has been changed
                             view.toggle("door-" + id, p.value);
                         if (main == "entities" && (sub == "health" || sub == "ammo") &&
-                            this.entities[parseInt(id)].is_hero)  // our hero's stats changed
+                            this.entities[id].is_hero)  // our hero's stats changed
                             updateHud();
                     }
                 }, this);
@@ -81,8 +81,12 @@ window.addEventListener("load", function () {
                     .style("fill", "lightblue")
                     .on("click", function () {
                         if (!world.preventClick) {
-                            var room = d3.event.target.id.split("-")[1], path;
-                            this.hero.updatePath(room);
+                            var room = d3.event.target.id.split("-")[1];
+                            //this.hero.updatePath(room);
+                            var success = function (data) {
+                                console.log(data);
+                            };
+                            d3.json(this.game_id + "/hero/room/" + room, success);
                         }
                     }.bind(this), true);
         }, this);
@@ -160,7 +164,8 @@ window.addEventListener("load", function () {
     };
 
     World.prototype.getHero = function () {
-        return _.filter(this.entities, function (e) {return e.is_hero})[0];
+
+        return _.filter(_.values(this.entities), function (e) {return e.is_hero})[0];
     };
 
     World.prototype.getElement = function (type, id) {
@@ -209,7 +214,7 @@ window.addEventListener("load", function () {
         // draw all entities
 
         var m = world.view.select("g.monsters").selectAll("circle.monster")
-                .data(world.entities, function (e) {return e._id;});
+                .data(_.values(world.entities), function (e) {return e._id;});
 
         m.transition().duration(1000)
             .attr("cx", function (d) {return world.rooms[d.room].center.x;})
