@@ -1,8 +1,9 @@
 from collections import OrderedDict
 from copy import deepcopy
+import random
 import uuid
 
-from entity import Entity
+from entity import Entity, Monster
 
 
 class Room(object):
@@ -58,6 +59,8 @@ class Level(object):
         self.connections = {conn._id: conn for conn in (connections if connections else [])}
         self.entities = {}
 
+        self.spawn_probability = 0.1
+
     def add_entities(self, data):
         for d in data:
             self.entities[d["_id"]] = Entity.from_dict(self, d)
@@ -112,6 +115,10 @@ class Level(object):
         "Go through all entities and check if they change state, etc."
         changed = [e for e in self.entities.values() if e.update()]
         self.reap_entities()
+        if random.random() < self.spawn_probability and len(self.entities) < 5:
+            print "spawn monster"
+            monster = Monster(level=self, room=random.choice(self.rooms.values()))
+            self.entities[monster._id] = monster
         return True
 
     def reap_entities(self):

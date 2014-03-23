@@ -19,7 +19,7 @@ class Entity(StateMachine):
     def __init__(self, _id=None, level=None, room=None,
                  speed=50, chance_to_hit=0.5, weapon_damage=5, healing=0, max_health=100,
                  health=100, ammo=0, morale=100):
-        self._id = _id if _id else str(uuid.uuid4)
+        self._id = _id if _id else str(uuid.uuid4())
         self.level = level
         self.room = room
 
