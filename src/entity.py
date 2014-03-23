@@ -56,9 +56,9 @@ class Entity(StateMachine):
         will be inert.
         """
         self.proceed()
-        self.behave()
+        self._behave()
 
-    def behave(self):
+    def _behave(self):
         """Act according to state."""
         if self.state == "FIGHTING":
             self.fight()
@@ -66,7 +66,8 @@ class Entity(StateMachine):
 
     def enter_room(self):
         "Enter the next room in the path"
-        old_room, (self.room, conn) = self.room, self._path.popleft()
+        print self._path
+        old_room, (self.room, conn, distance) = self.room, self._path.popleft()
         self.log("went from %s to %s via %s" % (old_room, self.room, conn))
         self.update_vision()
 
@@ -82,13 +83,15 @@ class Entity(StateMachine):
         "Chart a path to another room."
         start = self._path[0] if self._path else self.room
         path = level.get_shortest_path(start, destination)
-        if path:
-            self._path = path
+        if path and self._path:
+            first_dest = self.path.popleft()
+            self._path.clear()
+        self._path.extend(path)
         return path
 
     def update_vision(self):
         "Update the entity's field of vision (rooms that can be seen)"
-        connected = self.level.get_connected_rooms(self.room)
+        connected = dict(self.level.get_connected_rooms(self.room)).keys()
         self.vision = connected + [self.room]
 
     def fight(self):
@@ -121,7 +124,6 @@ class Entity(StateMachine):
 
     @classmethod
     def from_dict(cls, level, data):
-        print data
         is_hero = data.pop("is_hero")
         data["room"] = level.rooms[data["room"]]
         data["level"] = level
@@ -173,7 +175,7 @@ class Hero(Entity):
         return dict(
             _id=self._id, level=self.level._id, room=self.room._id,
             health=self.health, ammo=self.ammo, morale=self.morale,
-            path=[(room._id, conn._id) for room, conn in self._path],
+            path=[(room._id, conn._id, dist) for room, conn, dist in self._path],
             state=self.state, is_hero=True)
 
 
@@ -219,7 +221,8 @@ class Monster(Entity):
         "Select an adjacent room at random."
         connected = self.level.get_connected_rooms(self.room)
         if connected:
-            self._path.append(random.choice(connected))
+            room, conn = random.choice(list(connected))
+            self._path.append((room, conn, 1))
         return connected
 
     def get_enemies(self):
@@ -232,5 +235,5 @@ class Monster(Entity):
         "Representation of the Entity, for sending to the client"
         return dict(
             _id=self._id, level=self.level._id, room=self.room._id,
-            path=[(room._id, conn._id) for room, conn in self._path],
+            path=[(room._id, conn._id, dist) for room, conn, dist in self._path],
             state=self.state, is_hero=False)

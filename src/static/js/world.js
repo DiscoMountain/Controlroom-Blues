@@ -24,6 +24,7 @@ window.addEventListener("load", function () {
                 this.connections = data.data.connections;
                 this.rooms = data.data.rooms;
                 this.entities = data.data.entities;
+                this.observer = jsonpatch.observe(this);
                 if (!this.started)
                     this.start();  // get things rolling
             } else {
@@ -82,11 +83,11 @@ window.addEventListener("load", function () {
                     .on("click", function () {
                         if (!world.preventClick) {
                             var room = d3.event.target.id.split("-")[1];
-                            //this.hero.updatePath(room);
+                            //this.getHero().updatePath(room);
                             var success = function (data) {
                                 console.log(data);
                             };
-                            d3.json(this.game_id + "/hero/room/" + room, success);
+                            d3.json(this.game_id + "/entity/hero/move/" + room, success);
                         }
                     }.bind(this), true);
         }, this);

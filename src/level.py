@@ -63,41 +63,48 @@ class Level(object):
             self.entities[d["_id"]] = Entity.from_dict(self, d)
 
     def get_connected_rooms(self, room):
-        "Find out which rooms are accessible from a room, and how."
+        """
+        Find out which rooms are accessible from a room, and how.
+        Returns a set of tuples on the form (room, connection)
+        """
         if isinstance(room, str):
             room = self.rooms[room]
-        connected = []
+        connected = set()
         for conn in self.connections.values():
             if conn and room._id in conn.rooms:
                 conn_room = (conn.rooms - set([room._id])).pop()
-                connected.append((self.rooms[conn_room], conn))
+                connected.add((self.rooms[conn_room], conn))
         return connected
 
     def get_shortest_path(self, room1, room2):
-        "Find the/a shortest path from room1 to room2."
-        step = 0
-        queue = OrderedDict({room2._id: step})
+        """
+        Find the/a shortest path from room1 to room2.
+        Returns a list of tuples on the form (room, connection, distance)
+        """
+        queue = OrderedDict({room2._id: 0})
         i = 0
         while i < len(queue):
             pos, step = queue.items()[i]
             if pos == room1._id:  # we're there
+                print "there"
                 path = []
-                pos = room1
-                _, nearest = queue[room1._id]
+                nearest = queue[pos]
                 while pos != room2._id:
-                    for room, conn in self.get_connected_rooms(pos):
-                        conn, dist = queue.get(room._id)
+                    connected = self.get_connected_rooms(pos)
+                    for room, conn in connected:
+                        dist = queue.get(room._id)
                         if room == room2 or (dist and dist < nearest):
                             nearest = dist
                             pos = room._id
+                            the_conn = conn
                             dist_delta = 1  # should use actual distance on map
-                    path.append((pos, conn, dist_delta))
+                    path.append((self.rooms[pos], the_conn, dist_delta))
                 return path
             for room, conn in self.get_connected_rooms(pos):
                 old = queue.get(room._id)
                 totdist = step + 1
                 if old is None or old > totdist:
-                    queue[room._id] = (conn, totdist)
+                    queue[room._id] = totdist
             i += 1
         return None
 

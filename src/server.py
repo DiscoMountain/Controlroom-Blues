@@ -24,7 +24,7 @@ game_data = {
         "2": {"door": True, "open": False, "rooms": ["a", "b"]},
         "3": {"open": True, "rooms": ["a", "c"]},
         "4": {"open": True, "rooms": ["c", "g"]},
-        "5": {"door": True, "open": True, "rooms": ["d", "e"]},
+        "5": {"door": True, "open": False, "rooms": ["d", "e"]},
         "6": {"open": True, "rooms": ["b", "e"]},
         "7": {"open": True, "rooms": ["g", "d"]}
     },
@@ -39,7 +39,7 @@ game_data = {
     },
 
     "entities": [
-        {"_id": "hero", "is_hero": True, "level": "0", "room": "a"},
+        {"_id": "hero", "is_hero": True, "level": "0", "room": "g"},
         {"_id": "monster1", "is_hero": False, "level": "0", "room": "d"},
     ]
 }
@@ -70,12 +70,16 @@ def toggle_door(game_id, door_id):
         return jsonify(result=result)
     return False
 
+
 @app.route('/<int:game_id>/entity/<entity_id>/move/<room_id>')
-def move_hero(room_id):
+def move_hero(game_id, entity_id, room_id):
     if game_id in games:
-        result = games[game_id].level.get_entity(entity_id)
-
-
+        level = games[game_id].level
+        entity = level.entities[entity_id]
+        room = level.rooms[room_id]
+        success = entity.set_destination(level, room)
+        return jsonify(result=success)
+    return False
 
 @werkzeug.serving.run_with_reloader
 def main():
