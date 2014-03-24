@@ -14,6 +14,11 @@
     fill: rgb(240,240,0) !important;
 }
 
+.visible {
+    fill: rgb(220,240,256) !important;
+    stroke-width: 5 !important;
+}
+
 @keyframes glow-green {
     0% { fill: rgb(0,255,0) }
     100% { fill: rgb(0,100,0); }
@@ -52,7 +57,7 @@ circle.hero {
     /* -webkit-animation-direction: alternate; */
 }
 
-circle.monster {
+circle {
     fill: rgb(255,0,0);
     stroke: white;
     stroke-width: 2px;
@@ -69,4 +74,9 @@ circle.monster {
     /* -webkit-animation-timing-function: ease-in-out; */
     /* -webkit-animation-direction: alternate; */
 
+}
+
+.icon {
+    fill: yellow;
+    stroke: grey;
 }

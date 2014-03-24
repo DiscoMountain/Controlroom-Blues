@@ -25,10 +25,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1767152"
-     inkscape:cx="363.70467"
+     inkscape:cx="355.20644"
      inkscape:cy="237.77642"
      inkscape:document-units="px"
-     inkscape:current-layer="svg2999"
+     inkscape:current-layer="layer2"
      showgrid="true"
      inkscape:window-width="1920"
      inkscape:window-height="1061"
@@ -163,7 +163,6 @@
          height="20"
          x="220"
          y="290"
-         onclick="world.toggle(evt)"
          inkscape:label="#rect3881">
         <animateMotion
            class="OPEN"
@@ -190,7 +189,6 @@
          height="10"
          x="530"
          y="180"
-         onclick="world.toggle(evt)"
          inkscape:label="#rect2996">
         <animateMotion
            class="OPEN"
@@ -217,7 +215,6 @@
          height="20"
          x="220"
          y="80"
-         onclick="world.toggle(evt)"
          inkscape:label="#rect3881">
         <animateMotion
            class="OPEN"
@@ -253,7 +250,11 @@
          y="100"
          inkscape:label="#rect8508" />
     </g>
-    <g class="monsters"/>
-    <g class="hero"/>
+    <g
+       class="monsters"
+       id="monster-layer" />
+    <g
+       class="hero"
+       id="hero-layer" />
   </g>
 </svg>
