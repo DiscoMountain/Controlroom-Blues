@@ -37,7 +37,7 @@ window.addEventListener("load", function () {
                     if (path) {
                         var main = path[1], id = path[2], sub = path[3];
                         if (main == "connections")  // a door has been changed
-                            view.toggle("door-" + id, p.value);
+                            view.toggle(id, "door", p.value);
                         if (main == "entities" && (sub == "health" || sub == "ammo") &&
                             this.entities[id].is_hero)  // our hero's stats changed
                             updateHud();
@@ -58,7 +58,7 @@ window.addEventListener("load", function () {
     World.prototype.start = function () {
         console.log("start");
         this.started = true;
-        view.load("static/graphics/map.svg");  // get the map
+        view.load("static/graphics/map2.svg");  // get the map
     };
 
     // "activate" the map (needs to be called after the svg is loaded)
@@ -66,6 +66,7 @@ window.addEventListener("load", function () {
 
         this.view = d3.select(mapNode);
 
+        // compute centers and rects
         Object.keys(this.connections).forEach(function (c) {
             this.connections[c].center = this.getCenter("door", c);
             this.connections[c].rect = this.getRect("door", c);
@@ -74,15 +75,25 @@ window.addEventListener("load", function () {
         Object.keys(this.rooms).forEach(function (r) {
             this.rooms[r].center = this.getCenter("room", r);
             this.rooms[r].rect = this.getRect("room", r);
+
+            // write room names (for debugging)
+            var s = d3.select("#layer5").append("text");
+            s.attr("x", this.rooms[r].center.x)
+                .attr("y", this.rooms[r].center.y)
+                .style("fill", "black")
+                .style("text-anchor", "middle")
+                .style("font-size", "5px")
+                .text(r);
         }, this);
 
         // setup click listeners on the rooms
         Object.keys(this.rooms).forEach(function (room, i) {
-            var el = this.view.select("#room-" + room)
+            var el = this.view.select("#" + room)
                     .style("fill", "lightblue")
                     .on("click", function () {
                         if (!world.preventClick) {
-                            var room = d3.event.target.id.split("-")[1];
+                            var room = d3.event.target.id;
+                            console.log("click", room);
                             //this.getHero().updatePath(room);
                             var success = function (data) {
                                 console.log(data);
@@ -96,10 +107,10 @@ window.addEventListener("load", function () {
             if (this.connections[conn].door) {
                 // Initialize door position
                 if (this.connections[conn].opened)
-                    view.toggle("door-" + conn, true);
+                    view.toggle(conn, "door", true);
 
                 // setup click listener
-                var el = this.view.select("#door-" + conn)
+                var el = this.view.select("#" + conn)
                         .on("click", function () {
                             if (!world.preventClick) {
                                 console.log("clicked door", conn);
@@ -165,31 +176,30 @@ window.addEventListener("load", function () {
     };
 
     World.prototype.getHero = function () {
-
         return _.filter(_.values(this.entities), function (e) {return e.is_hero})[0];
     };
 
     World.prototype.getElement = function (type, id) {
-        return d3.select("#" + type + "-" + id);
+        return document.getElementById(id);
     };
 
     // find the coordinates of the center of something
     World.prototype.getCenter = function (type, id) {
         var el = this.getElement(type, id);
-        if (!el.empty())
-            return new Vector(parseInt(el.attr("x")) + parseInt(el.attr("width")) / 2,
-                              parseInt(el.attr("y")) + parseInt(el.attr("height")) / 2);
-        else
+        console.log("getCenter", el, id);
+        if (el) {
+            var bbox = util.transformedBoundingBox(el);
+            return new Vector(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
+        } else
             return null;
     };
 
     World.prototype.getRect = function (type, id) {
         var el = this.getElement(type, id);
-        if (!el.empty())
-            return{left: parseInt(el.attr("x")), top: parseInt(el.attr("y")),
-                   width: parseInt(el.attr("width")), height: parseInt(el.attr("height"))};
-        else
-            return null;
+        if (el) {
+            var bbox = util.transformedBoundingBox(el);
+            return{left: bbox.x, top: bbox.y, width: bbox.width, height: bbox.height};
+        } else return null;
     };
 
     function updateHud() {

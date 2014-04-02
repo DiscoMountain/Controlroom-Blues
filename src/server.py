@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-import logging
 from copy import deepcopy
+import json
+import logging
+from random import choice
 
 import gevent
 import gevent.monkey
@@ -15,34 +17,16 @@ from game import Game
 
 app = Flask(__name__)
 
-game_data = {
 
-    "_id": "kpejfhai",
+with open("src/data/map2.json") as f:
+    game_data = json.load(f)
 
-    "connections": {
-        "1": {"door": True, "locked": True, "open": False},
-        "2": {"door": True, "open": False, "rooms": ["a", "b"]},
-        "3": {"open": True, "rooms": ["a", "c"]},
-        "4": {"open": True, "rooms": ["c", "g"]},
-        "5": {"door": True, "open": False, "rooms": ["d", "e"]},
-        "6": {"open": True, "rooms": ["b", "e"]},
-        "7": {"open": True, "rooms": ["g", "d"]}
-    },
+game_data["_id"] = "dksaoko2"
 
-    "rooms": {
-        "a": {},
-        "b": {},
-        "c": {},
-        "d": {},
-        "e": {},
-        "g": {}
-    },
-
-    "entities": [
-        {"_id": "hero", "is_hero": True, "level": "0", "room": "g"},
-        {"_id": "monster1", "is_hero": False, "level": "0", "room": "d"},
-    ]
-}
+game_data["entities"] = [
+    {"_id": "hero", "is_hero": True, "level": "0", "room": choice(game_data["rooms"].keys())},
+    {"_id": "monster1", "is_hero": False, "level": "0", "room": choice(game_data["rooms"].keys())},
+]
 
 games = {}
 

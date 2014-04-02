@@ -1,0 +1,452 @@
+{
+    "connections": {
+        "rect3776-rect3818": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3776", 
+                "rect3818"
+            ], 
+            "open": false
+        }, 
+        "rect3794-rect3800": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3794", 
+                "rect3800"
+            ], 
+            "open": false
+        }, 
+        "rect3790-rect3818": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3790", 
+                "rect3818"
+            ], 
+            "open": false
+        }, 
+        "rect3802-rect3804": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3802", 
+                "rect3804"
+            ], 
+            "open": false
+        }, 
+        "rect4088": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3800", 
+                "rect3816"
+            ], 
+            "open": false
+        }, 
+        "rect3868-rect3906": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3868", 
+                "rect3906"
+            ], 
+            "open": false
+        }, 
+        "rect4086": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3000", 
+                "rect3792"
+            ], 
+            "open": false
+        }, 
+        "rect4084": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3792", 
+                "rect3794"
+            ], 
+            "open": false
+        }, 
+        "rect4082": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3788", 
+                "rect3794"
+            ], 
+            "open": false
+        }, 
+        "rect4080": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3784", 
+                "rect3790"
+            ], 
+            "open": false
+        }, 
+        "rect3884-rect3888": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3884", 
+                "rect3888"
+            ], 
+            "open": false
+        }, 
+        "rect3890-rect3898": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3890", 
+                "rect3898"
+            ], 
+            "open": false
+        }, 
+        "rect3880-rect3906": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3880", 
+                "rect3906"
+            ], 
+            "open": false
+        }, 
+        "rect3890-rect3896": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3890", 
+                "rect3896"
+            ], 
+            "open": false
+        }, 
+        "rect3890-rect3892": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3890", 
+                "rect3892"
+            ], 
+            "open": false
+        }, 
+        "rect4056": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3886", 
+                "rect3888"
+            ], 
+            "open": false
+        }, 
+        "rect3888-rect3890": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3888", 
+                "rect3890"
+            ], 
+            "open": false
+        }, 
+        "rect4078": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3784", 
+                "rect3786"
+            ], 
+            "open": false
+        }, 
+        "rect4076": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3782", 
+                "rect3784"
+            ], 
+            "open": false
+        }, 
+        "rect4074": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3778", 
+                "rect3782"
+            ], 
+            "open": false
+        }, 
+        "rect4058": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3892", 
+                "rect3900"
+            ], 
+            "open": false
+        }, 
+        "rect4070": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3000", 
+                "rect3776"
+            ], 
+            "open": false
+        }, 
+        "rect3790-rect3794": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3790", 
+                "rect3794"
+            ], 
+            "open": false
+        }, 
+        "rect3778-rect3818": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3778", 
+                "rect3818"
+            ], 
+            "open": false
+        }, 
+        "rect4090": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3798", 
+                "rect3800"
+            ], 
+            "open": false
+        }, 
+        "rect4092": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3804", 
+                "rect3812"
+            ], 
+            "open": false
+        }, 
+        "rect4094": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3808", 
+                "rect3814"
+            ], 
+            "open": false
+        }, 
+        "rect4096": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3866", 
+                "rect3870"
+            ], 
+            "open": false
+        }, 
+        "rect4098": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3868", 
+                "rect3870"
+            ], 
+            "open": false
+        }, 
+        "rect3880-rect3884": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3880", 
+                "rect3884"
+            ], 
+            "open": false
+        }, 
+        "rect3802-rect3808": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3802", 
+                "rect3808"
+            ], 
+            "open": false
+        }, 
+        "rect3800-rect3802": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3800", 
+                "rect3802"
+            ], 
+            "open": false
+        }, 
+        "rect4072": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3776", 
+                "rect3780"
+            ], 
+            "open": false
+        }, 
+        "rect3866-rect3906": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3866", 
+                "rect3906"
+            ], 
+            "open": false
+        }, 
+        "rect3802-rect3810": {
+            "locked": false, 
+            "door": false, 
+            "rooms": [
+                "rect3802", 
+                "rect3810"
+            ], 
+            "open": false
+        }, 
+        "rect4068": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3000", 
+                "rect3866"
+            ], 
+            "open": false
+        }, 
+        "rect4108": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3878", 
+                "rect3880"
+            ], 
+            "open": false
+        }, 
+        "rect4064": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3878", 
+                "rect3884"
+            ], 
+            "open": false
+        }, 
+        "rect4106": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3874", 
+                "rect3880"
+            ], 
+            "open": false
+        }, 
+        "rect4066": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3882", 
+                "rect3884"
+            ], 
+            "open": false
+        }, 
+        "rect4104": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3874", 
+                "rect3876"
+            ], 
+            "open": false
+        }, 
+        "rect4060": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3896", 
+                "rect3902"
+            ], 
+            "open": false
+        }, 
+        "rect4102": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3872", 
+                "rect3874"
+            ], 
+            "open": false
+        }, 
+        "rect4062": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3888", 
+                "rect3904"
+            ], 
+            "open": false
+        }, 
+        "rect4100": {
+            "locked": false, 
+            "door": true, 
+            "rooms": [
+                "rect3868", 
+                "rect3872"
+            ], 
+            "open": false
+        }
+    }, 
+    "rooms": {
+        "rect3896": {}, 
+        "rect3890": {}, 
+        "rect3800": {}, 
+        "rect3892": {}, 
+        "rect3000": {}, 
+        "rect3898": {}, 
+        "rect3792": {}, 
+        "rect3790": {}, 
+        "rect3778": {}, 
+        "rect3794": {}, 
+        "rect3798": {}, 
+        "rect3868": {}, 
+        "rect3776": {}, 
+        "rect3808": {}, 
+        "rect3804": {}, 
+        "rect3802": {}, 
+        "rect3866": {}, 
+        "rect3906": {}, 
+        "rect3904": {}, 
+        "rect3902": {}, 
+        "rect3900": {}, 
+        "rect3886": {}, 
+        "rect3884": {}, 
+        "rect3882": {}, 
+        "rect3880": {}, 
+        "rect3888": {}, 
+        "rect3780": {}, 
+        "rect3782": {}, 
+        "rect3784": {}, 
+        "rect3786": {}, 
+        "rect3788": {}, 
+        "rect3818": {}, 
+        "rect3814": {}, 
+        "rect3816": {}, 
+        "rect3810": {}, 
+        "rect3812": {}, 
+        "rect3876": {}, 
+        "rect3874": {}, 
+        "rect3872": {}, 
+        "rect3870": {}, 
+        "rect3878": {}
+    }
+}
