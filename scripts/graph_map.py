@@ -46,20 +46,24 @@ def get_bbox(node):
 def check_overlap(bbox1, bbox2):
     (left1, top1), (right1, bottom1) = bbox1
     (left2, top2), (right2, bottom2) = bbox2
-    overlap = not any((right1 <= left2, left1 >= right2, bottom1 <= top2, top1 >= bottom2))
+    if any((right1 <= left2, left1 >= right2, bottom1 <= top2, top1 >= bottom2)):
+       return None
+    overlap = (max(left1, left2), max(top1, top2)), (min(right1, right2), min(bottom1, bottom2))
     return overlap
 
 
 def find_door_connections(doors, rooms):
     connections = {}
     for door in doors:
-        expanded_door = expand_bbox(get_bbox(door), 1.5)
+        bbox = get_bbox(door)
+        expanded_door = expand_bbox(bbox, 2)
         connected_rooms = []
         for room in rooms:
             if check_overlap(expanded_door, get_bbox(room)):
+                print "door", door.id, "overlap", room.id
                 connected_rooms.append(room.id)
         if len(connected_rooms) == 2:
-            connections[door.id] = connected_rooms
+            connections[door.id] = (connected_rooms, make_rect(bbox))
     return connections
 
 
@@ -70,21 +74,27 @@ def find_room_connections(rooms):
     for (room1, bbox1), (room2, bbox2) in product(zipped, zipped):
         if room1 == room2:
             continue
-        if check_overlap(bbox1, bbox2):
+        overlap = check_overlap(bbox1, bbox2)
+        if overlap:
             low, high = sorted((room1.id, room2.id))
             key = "%s-%s" % (low, high)
             if key not in overlaps:
-                overlaps[key] = (low, high)
+                overlaps[key] = ((low, high), make_rect(overlap))
     return overlaps
 
 
+def make_rect(((left, top), (right, bottom))):
+    return {"x": left, "y": top, "width": right - left, "height": bottom - top}
+
+
 if __name__ == "__main__":
+
     import sys
     svg_file = sys.argv[1]
     s = svg.parse(svg_file)
 
-    rooms = s.items[0].items[1].items
-    doors = s.items[0].items[3].items
+    rooms = s.items[0].items[0].items[0].items
+    doors = s.items[0].items[0].items[2].items
 
     connections = find_door_connections(doors, rooms)
     print >>sys.stderr, "Doors:", len(doors)
@@ -95,10 +105,12 @@ if __name__ == "__main__":
 
     data = {}
     data["rooms"] = {r.id: {} for r in rooms}
-    data["connections"] = {c: {"door": True, "locked": False, "open": False, "rooms": r}
-                           for c, r in connections.items()}
-    for c, r in overlaps.items():
-        data["connections"][c] = {"door": False, "locked": False, "open": False, "rooms": r}
+    data["connections"] = {c: {"door": True, "locked": False,
+                               "open": False, "rooms": r, "rect": b}
+                           for c, (r, b) in connections.items()}
+    for c, (r, b) in overlaps.items():
+        data["connections"][c] = {"door": False, "locked": False,
+                                  "open": False, "rooms": r, "rect": b}
 
     with open(sys.argv[2], "w") as f:
         f.write(json.dumps(data, indent=4))
