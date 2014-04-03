@@ -68,13 +68,23 @@ window.addEventListener("load", function () {
 
         // compute centers and rects
         Object.keys(this.connections).forEach(function (c) {
-            this.connections[c].center = this.getCenter("door", c);
-            this.connections[c].rect = this.getRect("door", c);
+            var conn = this.connections[c];
+            if (conn.door) {
+                conn.rect = util.getRect("door", c);
+                conn.center = util.getCenter(conn.rect);
+            } else {
+                var room1 = util.getRect("room", conn.rooms[0]),
+                    room2 = util.getRect("room", conn.rooms[1]);
+                console.log(room1, room2);
+                conn.rect = util.bboxOverlap(room1, room2);
+                conn.center = util.getCenter(conn.rect);
+            }
+            console.log("connection rect", c, conn.rect);
         }, this);
 
         Object.keys(this.rooms).forEach(function (r) {
-            this.rooms[r].center = this.getCenter("room", r);
-            this.rooms[r].rect = this.getRect("room", r);
+            var rect = this.rooms[r].rect = util.getRect("room", r);
+            this.rooms[r].center = util.getCenter(rect);
 
             // write room names (for debugging)
             var s = d3.select("#layer5").append("text");
@@ -177,29 +187,6 @@ window.addEventListener("load", function () {
 
     World.prototype.getHero = function () {
         return _.filter(_.values(this.entities), function (e) {return e.is_hero})[0];
-    };
-
-    World.prototype.getElement = function (type, id) {
-        return document.getElementById(id);
-    };
-
-    // find the coordinates of the center of something
-    World.prototype.getCenter = function (type, id) {
-        var el = this.getElement(type, id);
-        console.log("getCenter", el, id);
-        if (el) {
-            var bbox = util.transformedBoundingBox(el);
-            return new Vector(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
-        } else
-            return null;
-    };
-
-    World.prototype.getRect = function (type, id) {
-        var el = this.getElement(type, id);
-        if (el) {
-            var bbox = util.transformedBoundingBox(el);
-            return{left: bbox.x, top: bbox.y, width: bbox.width, height: bbox.height};
-        } else return null;
     };
 
     function updateHud() {

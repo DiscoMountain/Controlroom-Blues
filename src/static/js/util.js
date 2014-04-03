@@ -2,7 +2,8 @@ var util = {};
 
 
 (function () {
-        // Calculate the bounding box of an element with respect to its parent element
+
+    // Calculate the bounding box of an element with respect to its parent element
     util.transformedBoundingBox = function (el){
         var bb  = el.getBBox(),
             svg = el.ownerSVGElement,
@@ -33,6 +34,35 @@ var util = {};
         bb.x = xMin; bb.width  = xMax-xMin;
         bb.y = yMin; bb.height = yMax-yMin;
         return bb;
+    };
+
+    util.bboxOverlap = function (bb1, bb2) {
+        var left1 = bb1.x, right1 = bb1.x + bb1.width, bottom1 = bb1.y, top1 = bb1.y + bb1.height,
+            left2 = bb2.x, right2 = bb2.x + bb2.width, bottom2 = bb2.y, top2 = bb2.y + bb2.height;
+        if (right1 <= left2 || left1 >= right2 || bottom1 >= top2 || top1 <= bottom2)
+            return null;
+        var bbox = {
+            x: Math.max(left1, left2),
+            y: Math.min(top1, top2)
+        };
+        bbox.width = Math.min(right1, right2) - bbox.x;
+        bbox.height = bbox.y - Math.max(bottom1, bottom2);
+        return bbox;
+    };
+
+    // find the coordinates of the center of a bounding box
+    util.getCenter = function (bbox) {
+        return new Vector(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
+    };
+
+    // Find the bounding box of an element
+    util.getRect = function (type, id) {
+        // Note: does not care a bout the type for now
+        var el = document.getElementById(id);
+        if (el) {
+            var bbox = util.transformedBoundingBox(el);
+            return{x: bbox.x, y: bbox.y, width: bbox.width, height: bbox.height};
+        } else return null;
     };
 
 })();
