@@ -56,7 +56,7 @@ def find_door_connections(doors, rooms):
     connections = {}
     for door in doors:
         bbox = get_bbox(door)
-        expanded_door = expand_bbox(bbox, 2)
+        expanded_door = expand_bbox(bbox, 1.25)
         connected_rooms = []
         for room in rooms:
             if check_overlap(expanded_door, get_bbox(room)):
