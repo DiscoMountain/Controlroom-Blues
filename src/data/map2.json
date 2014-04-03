@@ -79,8 +79,8 @@
             "rect": {
                 "y": 442.0, 
                 "x": 370.0, 
-                "height": 11.0, 
-                "width": 39.0
+                "height": 10.0, 
+                "width": 40.0
             }, 
             "locked": false, 
             "door": false, 
@@ -150,21 +150,6 @@
             ], 
             "open": false
         }, 
-        "rect3868-rect3880": {
-            "rect": {
-                "y": 442.0, 
-                "x": 370.0, 
-                "height": 1.0, 
-                "width": 9.0
-            }, 
-            "locked": false, 
-            "door": false, 
-            "rooms": [
-                "rect3868", 
-                "rect3880"
-            ], 
-            "open": false
-        }, 
         "rect3884-rect3888": {
             "rect": {
                 "y": 252.0, 
@@ -198,8 +183,8 @@
         "rect3880-rect3906": {
             "rect": {
                 "y": 403.0, 
-                "x": 369.0, 
-                "height": 40.0, 
+                "x": 370.0, 
+                "height": 39.0, 
                 "width": 10.0
             }, 
             "locked": false, 
@@ -495,26 +480,11 @@
             ], 
             "open": false
         }, 
-        "rect3866-rect3868": {
-            "rect": {
-                "y": 442.0, 
-                "x": 399.0, 
-                "height": 1.0, 
-                "width": 11.0
-            }, 
-            "locked": false, 
-            "door": false, 
-            "rooms": [
-                "rect3866", 
-                "rect3868"
-            ], 
-            "open": false
-        }, 
         "rect3866-rect3906": {
             "rect": {
                 "y": 403.0, 
-                "x": 399.0, 
-                "height": 40.0, 
+                "x": 400.0, 
+                "height": 39.0, 
                 "width": 10.0
             }, 
             "locked": false, 
