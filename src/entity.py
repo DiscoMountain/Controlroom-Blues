@@ -83,10 +83,11 @@ class Entity(StateMachine):
         "Chart a path to another room."
         start = self._path[0] if self._path else self.room
         path = level.get_shortest_path(start, destination)
-        if path and self._path:
-            first_dest = self.path.popleft()
-            self._path.clear()
-        self._path.extend(path)
+        if path:
+            if self._path:
+                first_dest = self.path.popleft()
+                self._path.clear()
+            self._path.extend(path)
         return path
 
     def update_vision(self):
