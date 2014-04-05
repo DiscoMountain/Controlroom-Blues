@@ -64,6 +64,8 @@ window.addEventListener("load", function () {
     // "activate" the map (needs to be called after the svg is loaded)
     World.prototype.connect_map = function (mapNode) {
 
+        console.log("connect_map");
+
         this.view = d3.select(mapNode);
 
         // compute centers and rects
@@ -239,12 +241,29 @@ window.addEventListener("load", function () {
     function drawEntities () {
         // draw all entities
 
+        console.log("drawEntitites");
+
         var m = world.view.select("g.monsters").selectAll("circle.monster")
                 .data(_.values(world.entities), function (e) {return e._id;});
 
         m.transition().duration(900).ease("linear")
-            .attr("cx", function (d) {return world.rooms[d.room].center.x;})
-            .attr("cy", function (d) {return world.rooms[d.room].center.y;});
+            .attr("cx", function (d) {
+                if (d.path.length > 0) {
+                    console.log("path", d.path);
+                    var conn = d.path[0][1];
+                    return world.connections[conn].center.x;
+                } else {
+                    return world.rooms[d.room].center.x;
+                }
+            })
+            .attr("cy", function (d) {
+                if (d.path.length > 0) {
+                    var conn = d.path[0][1];
+                    return world.connections[conn].center.y;
+                } else {
+                    return world.rooms[d.room].center.y;
+                }
+            });
 
         m.enter().append("circle")
             .classed("monster", true)
