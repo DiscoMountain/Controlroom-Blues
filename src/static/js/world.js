@@ -242,7 +242,7 @@ window.addEventListener("load", function () {
         var m = world.view.select("g.monsters").selectAll("circle.monster")
                 .data(_.values(world.entities), function (e) {return e._id;});
 
-        m.transition().duration(1000).ease("linear")
+        m.transition().duration(900).ease("linear")
             .attr("cx", function (d) {return world.rooms[d.room].center.x;})
             .attr("cy", function (d) {return world.rooms[d.room].center.y;});
 
