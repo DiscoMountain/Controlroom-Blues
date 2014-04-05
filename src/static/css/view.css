@@ -62,3 +62,8 @@ body {
     height: 300px;
     overflow: hidden;
 }
+
+.debug {
+    visibility: hidden;
+    pointer-events: none;
+}

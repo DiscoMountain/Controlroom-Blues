@@ -13,7 +13,7 @@
    height="602"
    id="svg2985"
    version="1.1"
-   inkscape:version="0.48+devel r"
+   inkscape:version="0.48.4 r9939"
    sodipodi:docname="map2.svg">
   <defs
      id="defs2987" />
@@ -24,16 +24,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.3941126"
-     inkscape:cx="606.54298"
-     inkscape:cy="139.52779"
+     inkscape:zoom="1.6970563"
+     inkscape:cx="642.47308"
+     inkscape:cy="164.98098"
      inkscape:current-layer="layer2"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1061"
+     inkscape:window-width="1600"
+     inkscape:window-height="863"
      inkscape:window-x="0"
-     inkscape:window-y="19"
+     inkscape:window-y="37"
      inkscape:window-maximized="0"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -157,8 +157,8 @@
          id="rect3800"
          width="40"
          height="130"
-         x="669"
-         y="343" />
+         x="670"
+         y="342" />
       <rect
          style="fill:#97b1d8;fill-opacity:1;stroke:none"
          id="rect3802"

@@ -79,7 +79,29 @@ window.addEventListener("load", function () {
                 conn.rect = util.bboxOverlap(room1, room2);
                 conn.center = util.getCenter(conn.rect);
             }
-            console.log("connection rect", c, conn.rect);
+
+            // draw connections for debugging maps
+            // only visible if the .debug class in view.css is not hidden
+            var tx = this.connections[c].center.x,
+                ty = this.connections[c].center.y;
+            var s = d3.select("#layer5");
+            s.append("rect").attr("x", conn.rect.x)
+                .classed("debug", true)
+                .attr("y", conn.rect.y)
+                .attr("width", conn.rect.width)
+                .attr("height", conn.rect.height)
+                .style("stroke", "grey")
+                .style("stroke-dasharray", "5,5")
+                .style("fill", "transparent")
+                .append("title")
+                .attr("text", conn.rooms[0] + "-" + conn.rooms[1]);
+            s.append("text")
+                .classed("debug", true)
+                .attr("x", tx).attr("y", ty)
+                .style("fill", "grey")
+                .style("font-size", "5px")
+                .attr("transform", "rotate(45,"+tx+","+ty+")")
+                .text(conn.rooms[0] + "-" + conn.rooms[1]);
         }, this);
 
         Object.keys(this.rooms).forEach(function (r) {
@@ -87,10 +109,12 @@ window.addEventListener("load", function () {
             this.rooms[r].center = util.getCenter(rect);
 
             // write room names (for debugging)
-            var s = d3.select("#layer5").append("text");
+            // only visible if the .debug class in view.css is not hidden
+            var s = d3.select("#layer2").append("text")
+                    .classed("debug", true);
             s.attr("x", this.rooms[r].center.x)
                 .attr("y", this.rooms[r].center.y)
-                .style("fill", "black")
+                .style("fill", "grey")
                 .style("text-anchor", "middle")
                 .style("font-size", "5px")
                 .text(r);
@@ -218,7 +242,7 @@ window.addEventListener("load", function () {
         var m = world.view.select("g.monsters").selectAll("circle.monster")
                 .data(_.values(world.entities), function (e) {return e._id;});
 
-        m.transition().duration(1000)
+        m.transition().duration(1000).ease("linear")
             .attr("cx", function (d) {return world.rooms[d.room].center.x;})
             .attr("cy", function (d) {return world.rooms[d.room].center.y;});
 

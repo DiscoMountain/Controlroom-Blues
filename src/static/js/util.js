@@ -37,16 +37,18 @@ var util = {};
     };
 
     util.bboxOverlap = function (bb1, bb2) {
-        var left1 = bb1.x, right1 = bb1.x + bb1.width, bottom1 = bb1.y, top1 = bb1.y + bb1.height,
-            left2 = bb2.x, right2 = bb2.x + bb2.width, bottom2 = bb2.y, top2 = bb2.y + bb2.height;
-        if (right1 <= left2 || left1 >= right2 || bottom1 >= top2 || top1 <= bottom2)
+        var left1 = bb1.x, right1 = bb1.x + bb1.width,
+            bottom1 = bb1.y + bb1.height, top1 = bb1.y,
+            left2 = bb2.x, right2 = bb2.x + bb2.width,
+            bottom2 = bb2.y + bb2.height, top2 = bb2.y;
+        if (right1 <= left2 || left1 >= right2 || bottom1 <= top2 || top1 >= bottom2)
             return null;
         var bbox = {
             x: Math.max(left1, left2),
-            y: Math.min(top1, top2)
+            y: Math.max(top1, top2)
         };
         bbox.width = Math.min(right1, right2) - bbox.x;
-        bbox.height = bbox.y - Math.max(bottom1, bottom2);
+        bbox.height = Math.min(bottom1, bottom2) - bbox.y;
         return bbox;
     };
 
