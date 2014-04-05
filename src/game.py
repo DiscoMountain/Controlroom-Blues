@@ -6,7 +6,15 @@ from gevent.queue import Queue
 from gevent.lock import BoundedSemaphore
 from jsonpatch import JsonPatch
 
-from level import Level
+from level import Level, Room, Connection
+from entity import Entity
+
+
+class GameDataEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (Entity, Room, Connection, Level)):
+            return obj.to_dict()
+        return json.JSONEncoder.default(self, obj)
 
 
 class Game(object):

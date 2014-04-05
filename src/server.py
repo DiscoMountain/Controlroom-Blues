@@ -13,9 +13,11 @@ gevent.monkey.patch_all()
 import werkzeug.serving
 from flask import Flask, request, Response, render_template, jsonify
 
-from game import Game
+from game import Game, GameDataEncoder
+
 
 app = Flask(__name__)
+app.json_encoder = GameDataEncoder
 
 
 with open("src/data/map2.json") as f:
@@ -24,14 +26,16 @@ with open("src/data/map2.json") as f:
 game_data["_id"] = "dksaoko2"
 
 game_data["entities"] = [
-    {"_id": "hero", "is_hero": True, "level": "0", "room": choice(game_data["rooms"].keys())},
-    {"_id": "monster1", "is_hero": False, "level": "0", "room": choice(game_data["rooms"].keys())},
+    {"_id": "hero", "is_hero": True, "level": "0",
+     "room": choice(game_data["rooms"].keys())},
+    {"_id": "monster1", "is_hero": False, "level": "0",
+     "room": choice(game_data["rooms"].keys())},
 ]
 
 games = {}
 
 
-@app.route('/listen_game/<int:game_id>', methods = ['GET'])
+@app.route('/listen_game/<int:game_id>', methods=['GET'])
 def listen_game(game_id):
     if game_id in games:
         return Response(games[game_id].listen(),
@@ -64,6 +68,7 @@ def move_hero(game_id, entity_id, room_id):
         success = entity.set_destination(level, room)
         return jsonify(result=success)
     return False
+
 
 @werkzeug.serving.run_with_reloader
 def main():
