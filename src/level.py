@@ -59,7 +59,7 @@ class Level(object):
         self.connections = {conn._id: conn for conn in (connections if connections else [])}
         self.entities = {}
 
-        self.spawn_probability = 0.1
+        self.spawn_probability = 0
 
     def add_entities(self, data):
         for d in data:
@@ -70,7 +70,7 @@ class Level(object):
         Find out which rooms are accessible from a room, and how.
         Returns a set of tuples on the form (room, connection)
         """
-        if isinstance(room, str):
+        if room in self.rooms:
             room = self.rooms[room]
         connected = set()
         for conn in self.connections.values():

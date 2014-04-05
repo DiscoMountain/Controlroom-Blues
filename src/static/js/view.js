@@ -60,7 +60,16 @@ var view = {};
             }
         }
 
-        // insert the main view SVG into the page
+        d3.select(importedNode)
+            .select("#layer2")
+            .selectAll("rect")
+            .classed("room", true);
+
+        d3.select(importedNode)
+            .select("#layer4")
+            .selectAll("rect")
+            .classed("door", true);
+
         var svg = d3.select(importedNode)
                 .attr("id", "main-svg")
                 .call(zoom)
@@ -69,6 +78,8 @@ var view = {};
                 .on("mouseup", mouseup)
                 .on("mousemove", mousemove)
                 .on("click", click);
+
+        // insert the main view SVG into the page
         d3.select("#view").node()
             .appendChild(importedNode);
 
@@ -102,9 +113,8 @@ var view = {};
     };
 
 
-    view.toggle = function (node_id, open) {
-        var item_type = node_id.split("-")[0],
-            target = document.getElementById(node_id);
+    view.toggle = function (node_id, item_type, open) {
+        var target = document.getElementById(node_id);
         console.log("toggle door", node_id, open);
         switch (item_type) {
         case "door":
