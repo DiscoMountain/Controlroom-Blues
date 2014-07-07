@@ -34,6 +34,7 @@ class Game(object):
 
     def __init__(self, _id=None, data=None):
         self._id = _id if _id else uuid.uuid4()
+        self.data = data
         self.level = Level.from_dict(data) if data else None
 
         self._lock = BoundedSemaphore()

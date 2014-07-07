@@ -3,7 +3,7 @@ var world;
 window.addEventListener("load", function () {
 
     world = new World();
-    console.log("Wworld defined");
+    console.log("World defined");
 
     // Representation of the game world
     function World() {
@@ -58,7 +58,8 @@ window.addEventListener("load", function () {
     World.prototype.start = function () {
         console.log("start");
         this.started = true;
-        view.load("static/graphics/map2.svg");  // get the map
+        //view.load("static/graphics/map2.svg");  // get the map
+        view.load(this.game_id + "/map");
     };
 
     // "activate" the map (needs to be called after the svg is loaded)

@@ -11,7 +11,8 @@ from gevent.pywsgi import WSGIServer
 gevent.monkey.patch_all()
 
 import werkzeug.serving
-from flask import Flask, request, Response, render_template, jsonify
+from flask import (Flask, request, Response, render_template, jsonify,
+                   send_from_directory)
 
 from game import Game, GameDataEncoder
 
@@ -27,7 +28,7 @@ game_data["_id"] = "dksaoko2"
 
 game_data["entities"] = [
     {"_id": "hero", "is_hero": True, "level": "0",
-     "room": choice(game_data["rooms"].keys())},
+     "room": game_data["start_room"]},
     {"_id": "monster1", "is_hero": False, "level": "0",
      "room": choice(game_data["rooms"].keys())},
 ]
@@ -49,6 +50,13 @@ def get_client(game_id):
         games[game_id] = game
     #return render_template('test_client.html')
     return render_template('client.html', game_id=game_id)
+
+
+@app.route('/<int:game_id>/map')
+def get_map(game_id):
+    print game_id
+    map_file = games[game_id].data["map_file"]
+    return send_from_directory(app.static_folder + "/graphics", map_file)
 
 
 @app.route('/<int:game_id>/door/<door_id>/toggle')
