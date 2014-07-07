@@ -61,6 +61,10 @@ class Level(object):
 
         self.spawn_probability = 0
 
+    @property
+    def hero(self):
+        return self.entities["hero"]
+
     def add_entities(self, data):
         for d in data:
             self.entities[d["_id"]] = Entity.from_dict(self, d)

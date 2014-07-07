@@ -19,15 +19,19 @@ window.addEventListener("load", function () {
                 return;
             var data = JSON.parse(event.data);  // decode JSON
             console.log(data);
-            if ("data" in data) {
+            if ("victory" in data) {
+                // we won or lost
+                console.log("Game Over -", data.victory);
+                clearInterval(this._draw);
+            } else if ("data" in data) {
                 // We got a full level data object, let's initialize
                 this.connections = data.data.connections;
                 this.rooms = data.data.rooms;
                 this.entities = data.data.entities;
-                this.observer = jsonpatch.observe(this);
+                //this.observer = jsonpatch.observe(this);
                 if (!this.started)
                     this.start();  // get things rolling
-            } else {
+            } else if ("patch" in data){
                 // We got a patch of changes, let's apply it
                 jsonpatch.apply(this, data.patch);
                 data.patch.forEach(function(p) {
@@ -161,7 +165,7 @@ window.addEventListener("load", function () {
         }, this);
 
         this.updateIcons();
-        setInterval(drawEntities, 1000);
+        this._draw = setInterval(drawEntities, 1000);
         updateHud();
     };
 

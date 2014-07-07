@@ -36,6 +36,8 @@ class Game(object):
         self._id = _id if _id else uuid.uuid4()
         self.data = data
         self.level = Level.from_dict(data) if data else None
+        self.over = False
+        self.victory = None
 
         self._lock = BoundedSemaphore()
         self._main = None    # will hold a reference to the main greenlet
@@ -46,6 +48,12 @@ class Game(object):
         "Start running the game"
         while True:
             gevent.sleep(period)
+            if self.level.hero.health <= 0:
+                # GAME OVER - hero killed!
+                self.end(victory=False)
+            if self.level.hero.room._id == self.data["goal_room"]:
+                # Victory - hero escaped!
+                self.end(victory=True)
             if not self.queues:
                 # if there are no clients listening we stop the game
                 self.stop()
@@ -61,8 +69,16 @@ class Game(object):
         self._main = None
         print "stopped game", self._id
 
+    def end(self, victory):
+        "End the game"
+        print "GAME OVER", victory
+        self.over = True
+        self.victory = victory
+        self.broadcast(dict(victory=victory))
+        self.stop()
+
     def broadcast(self, event):
-        "Send event data to all listeners"
+        "Send data to all listeners"
         for queue in self.queues:
             queue.put(event)
 
