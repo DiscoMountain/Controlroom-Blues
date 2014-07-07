@@ -1,5 +1,6 @@
 {
     "start_room": "rect4025",
+    "goal_room": "rect4027",
 
     "connections": {
         "rect3776-rect3818": {
