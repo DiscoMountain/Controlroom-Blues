@@ -1,3 +1,14 @@
+"""
+This is the part that runs the game. The game logic is not kept
+here.
+
+Missing parts:
+ * persistence (database?)
+ * user handling, auth... (maybe does not belong here anyway)
+ * game end, statistics...
+
+"""
+
 import json
 import uuid
 
@@ -27,18 +38,21 @@ class Game(object):
 
         self._lock = BoundedSemaphore()
         self._main = None    # will hold a reference to the main greenlet
-        self._cache = None   # previous game state is kept for detecting changes
-        self.queues = set()  # each client gets a queue where change events are put
+        self._oldstate = None   # previous state is kept for computing changes
+        self.queues = set()  # each client gets a queue where changes are put
 
     def start(self, period=1.0):
         "Start running the game"
         while True:
             gevent.sleep(period)
-            res = self._loop()
             if not self.queues:
+                # if there are no clients listening we stop the game
                 self.stop()
-            elif res:
-                self.broadcast(res)
+                exit
+            changes = self._update()
+            if changes:
+                # send out the changes to all clients
+                self.broadcast(dict(patch=list(changes)))
 
     def stop(self):
         "Stop running the game"
@@ -55,8 +69,8 @@ class Game(object):
         "Add a listener (client)"
         queue = Queue()
         self.queues.add(queue)  # add a listener queue
-        queue.put({"data": self.level.to_dict()})  # client needs game data to start
-        with self._lock:
+        queue.put({"data": self.level.to_dict()})  # send initial data
+        with self._lock:  # making sure the game is only started once
             if not self.is_running:
                 self._main = gevent.spawn(self.start)  # start the game
         try:
@@ -70,13 +84,8 @@ class Game(object):
 
     @property
     def is_running(self):
-        return self._main
-
-    def _loop(self):
-        "Do updates and check if anything changed."
-        result = self._update()
-        if result:
-            return dict(patch=list(result))
+        "whether the game is currently running or not"
+        return bool(self._main)
 
     def _update(self):
         "Update the level, entities, etc"
@@ -84,10 +93,11 @@ class Game(object):
         # the dicts on each update if nothing actually happened.
         self.level.update_entities()
         data = self.level.to_dict()
-        if self._cache:
-            patch = JsonPatch.from_diff(self._cache, data)
+        if self._oldstate:
+            # compute the difference from previous state
+            patch = JsonPatch.from_diff(self._oldstate, data)
             if patch:  # something has changed!
-                self._cache = data
+                self._oldstate = data
                 return patch
         else:
-            self._cache = data
+            self._oldstate = data
