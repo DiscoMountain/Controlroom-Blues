@@ -64,6 +64,19 @@ body {
 }
 
 .debug {
-    visibility: hidden;
+    /* visibility: hidden; */
     pointer-events: none;
+}
+
+#layer2 rect {
+    fill: rgb(50,50,50) !important;
+}
+
+#layer2 rect:hover {
+    fill: rgb(70,70,70) !important;
+}
+
+#layer4 rect {
+    fill: rgb(150,150,150) !important;
+    stroke: rgb(150,150,150) !important;
 }
