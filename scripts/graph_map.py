@@ -90,6 +90,8 @@ def make_rect(((left, top), (right, bottom))):
 if __name__ == "__main__":
 
     import sys
+    from os import path
+
     svg_file = sys.argv[1]
     s = svg.parse(svg_file)
 
@@ -103,7 +105,8 @@ if __name__ == "__main__":
     overlaps = find_room_connections(rooms)
     print >>sys.stderr, "Overlapping rooms:", len(overlaps)
 
-    data = {}
+    data = {"title": path.splitext(path.split(svg_file)[-1])[0],
+            "map_file": path.split(svg_file)[-1]}
     data["rooms"] = {r.id: {} for r in rooms}
     data["connections"] = {c: {"door": True, "locked": False,
                                "open": False, "rooms": r, "rect": b}
