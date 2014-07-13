@@ -26,12 +26,30 @@ with open("src/data/map2.json") as f:
 
 game_data["_id"] = "dksaoko2"
 
+# polulate the level with entitites
 game_data["entities"] = [
+
+    # the hero
     {"_id": "hero", "is_hero": True, "level": "0",
      "room": game_data["start_room"]},
+
+    # random monster
     {"_id": "monster1", "is_hero": False, "level": "0",
+     "health": 30,
      "room": choice(game_data["rooms"].keys())},
+
+    # patrolling monster
+    {"_id": "monster2", "is_hero": False, "level": "0",
+     "health": 30,
+     "room": "rect3780",
+     "route": ["rect3000", "rect3788", "rect3784", "rect3782", "rect3780"]},
 ]
+
+# open some doors for the patrolling monster
+for door in ["rect4072", "rect4070", "rect4086", "rect4084",
+             "rect4082", "rect4080", "rect4076", "rect4074"]:
+    game_data["connections"][door]["open"] = True
+
 
 games = {}
 
@@ -73,8 +91,9 @@ def move_hero(game_id, entity_id, room_id):
         level = games[game_id].level
         entity = level.entities[entity_id]
         room = level.rooms[room_id]
-        success = entity.set_destination(level, room)
-        return jsonify(result=success)
+        success = entity.set_destination(room)
+        return jsonify(result=bool(success))
+
     return False
 
 
@@ -84,6 +103,7 @@ def main():
     handler.setLevel(logging.DEBUG)
     app.logger.setLevel(logging.DEBUG)
     app.logger.addHandler(handler)
+    app.debug = True
     http_server = WSGIServer(('127.0.0.1', 8001), app)
     http_server.serve_forever()
 
