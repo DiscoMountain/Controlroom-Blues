@@ -155,8 +155,8 @@ class StateMachine(object):
             self._state = self[new_state]
             maybe(self._state.action)
             self.history[self.state] = time.time()
-        else:
-            maybe(self._state.recurring_action)
+        #else:
+        #    maybe(self._state.recurring_action)
 
     @property
     def finished(self):
