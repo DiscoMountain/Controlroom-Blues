@@ -17,11 +17,12 @@ class Entity(StateMachine):
     __metaclass__ = ABCMeta
 
     def __init__(self, _id=None, level=None, room=None,
-                 speed=50, chance_to_hit=0.5, weapon_damage=5, healing=0, max_health=100,
+                 speed=50, chance_to_hit=0.5, weapon_damage=5,
+                 healing=0, max_health=100,
                  health=100, ammo=0, morale=100):
         self._id = _id if _id else str(uuid.uuid4())
         self.level = level
-        self.room = room
+        self.room = room  # the currently occupied Room object
 
         self.speed = speed
         self.chance_to_hit = chance_to_hit
@@ -42,8 +43,9 @@ class Entity(StateMachine):
 
         def log_state_change(a, b):
             self.log("%s -> %s" % (a, b))
-        StateMachine.__init__(self, ["IDLE", "MOVING", "FIGHTING", "DEAD"],
-                              on_state_change=log_state_change)
+        StateMachine.__init__(
+            self, ["IDLE", "MOVING", "FIGHTING", "DEAD", "PATROLLING"],
+            on_state_change=log_state_change)
 
     def log(self, msg):
         "Print a nice log message"
@@ -67,9 +69,10 @@ class Entity(StateMachine):
     def enter_room(self):
         "Enter the next room in the path"
         print self._path
-        old_room, (self.room, conn, distance) = self.room, self._path.popleft()
-        self.log("went from %s to %s via %s" % (old_room, self.room, conn))
-        self.update_vision()
+        if self._path:
+            old_room, (self.room, conn, _) = self.room, self._path.popleft()
+            self.log("went from %s to %s via %s" % (old_room, self.room, conn))
+            self.update_vision()
 
     def set_timeout(self, dt):
         "Set a timeout that the entity will wait for."
@@ -79,14 +82,23 @@ class Entity(StateMachine):
         "Check if the timeout has passed."
         return time.time() >= self._timeout
 
-    def set_destination(self, level, destination):
+    def set_destination(self, destination):
         "Chart a path to another room."
-        start = self._path[0] if self._path else self.room
-        path = level.get_shortest_path(start, destination)
+        start = self.level.rooms[self._path[0][0]] if self._path else self.room
+        path = self.level.get_shortest_path(start, destination)
         if path:
             if self._path:
                 first_dest = self.path.popleft()
                 self._path.clear()
+            self._path.extend(path)
+        return path
+
+    def add_destination(self, destination):
+        start = (self.level.rooms[self._path[-1][0]._id]
+                 if self._path else self.room)
+        path = self.level.get_shortest_path(start, destination)
+        print start, destination, path
+        if path:
             self._path.extend(path)
         return path
 
@@ -184,19 +196,25 @@ class Monster(Entity):
 
     "The antagonists"
 
-    def __init__(self, restlessness=0.5, *args, **kwargs):
+    def __init__(self, restlessness=0.1, route=None, *args, **kwargs):
 
         Entity.__init__(self, *args, **kwargs)
 
+        # === Behavior parameters ===
         self.restlessness = restlessness  # likelihood of wandering randomly
+        self.route = route  # route to follow if in PATROLLING
 
         # === Defining the state machine ===
 
         # IDLE - not doing anything particular
+        # self.IDLE.when(lambda: self.route)\
+        #          .goto(self.PATROLLING)
         self.IDLE.when(lambda: self._path)\
                  .goto(self.MOVING)
         self.IDLE.when(self.get_enemies)\
                  .goto(self.FIGHTING)
+        self.IDLE.when(lambda: self.route and self._set_new_destination())\
+                 .goto(self.MOVING)
         # Monsters are antsy and don't stay in one room for long
         self.IDLE.when(lambda: random.random() < self.restlessness and
                        self._set_random_destination())\
@@ -206,10 +224,8 @@ class Monster(Entity):
         def leave_room():
             self.set_timeout(100.0 / self.speed)
         self.MOVING.set_action(leave_room)
-        #self.MOVING.when(lambda: not self._path).goto(self.IDLE)
         self.MOVING.when(self.timeout_passed)\
             .do(self.enter_room).goto(self.IDLE)
-        self.MOVING.when(lambda: not self._path).goto(self.IDLE)  # not needed?
 
         # FIGHTING - when there are enemies present
         self.FIGHTING.when(lambda: self.health <= 0).goto(self.DEAD)
@@ -225,6 +241,12 @@ class Monster(Entity):
             room, conn = random.choice(list(connected))
             self._path.append((room, conn, 1))
         return connected
+
+    def _set_new_destination(self):
+        if self.route:
+            for r in self.route:
+                self.add_destination(self.level.rooms[r])
+        return self._path
 
     def get_enemies(self):
         "Check if any heroes are around."
