@@ -68,6 +68,17 @@ body {
     pointer-events: none;
 }
 
+rect.debug {
+    stroke: grey;
+    stroke-dasharray: 5,5;
+    fill: transparent;
+}
+
+text.debug {
+    fill: grey;
+    font-size: 5px;
+}
+
 #layer2 rect {
     fill: rgb(50,50,50) !important;
 }

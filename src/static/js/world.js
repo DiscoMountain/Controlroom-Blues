@@ -97,16 +97,11 @@ window.addEventListener("load", function () {
                 .attr("y", conn.rect.y)
                 .attr("width", conn.rect.width)
                 .attr("height", conn.rect.height)
-                .style("stroke", "grey")
-                .style("stroke-dasharray", "5,5")
-                .style("fill", "transparent")
                 .append("title")
                 .attr("text", c);
             s.append("text")
                 .classed("debug", true)
                 .attr("x", tx).attr("y", ty)
-                .style("fill", "grey")
-                .style("font-size", "5px")
                 .attr("transform", "rotate(45,"+tx+","+ty+")")
                 .text(c);
         }, this);
@@ -121,9 +116,7 @@ window.addEventListener("load", function () {
                     .classed("debug", true);
             s.attr("x", this.rooms[r].center.x)
                 .attr("y", this.rooms[r].center.y)
-                .style("fill", "grey")
                 .style("text-anchor", "middle")
-                .style("font-size", "5px")
                 .text(r);
         }, this);
 
