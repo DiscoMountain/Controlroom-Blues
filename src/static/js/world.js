@@ -101,14 +101,14 @@ window.addEventListener("load", function () {
                 .style("stroke-dasharray", "5,5")
                 .style("fill", "transparent")
                 .append("title")
-                .attr("text", conn.rooms[0] + "-" + conn.rooms[1]);
+                .attr("text", c);
             s.append("text")
                 .classed("debug", true)
                 .attr("x", tx).attr("y", ty)
                 .style("fill", "grey")
                 .style("font-size", "5px")
                 .attr("transform", "rotate(45,"+tx+","+ty+")")
-                .text(conn.rooms[0] + "-" + conn.rooms[1]);
+                .text(c);
         }, this);
 
         Object.keys(this.rooms).forEach(function (r) {
