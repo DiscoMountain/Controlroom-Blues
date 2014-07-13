@@ -158,11 +158,13 @@ class Level(object):
     @classmethod
     def from_dict(cls, data):
         "Create an instance of this class from a dict of properties."
-        _id = data["_id"]
-        rooms = [Room(_id, room.get("items", []))
-                 for _id, room in data["rooms"].items()]
-        connections = [Connection(_id, door=conn.get("door"), rooms=conn.get("rooms", []))
-                       for _id, conn in data["connections"].items()]
-        level = cls(_id, rooms, connections)
+        rooms = [Room(id_, room.get("items", []))
+                 for id_, room in data["rooms"].items()]
+        connections = [Connection(id_, door=conn.get("door", False),
+                                  rooms=conn.get("rooms", []),
+                                  locked=conn.get("locked", False),
+                                  opened=conn.get("open", True))
+                       for id_, conn in data["connections"].items()]
+        level = cls(data["_id"], rooms, connections)
         level.add_entities(deepcopy(data["entities"]))
         return level
